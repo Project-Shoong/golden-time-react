@@ -8,7 +8,7 @@ import search18 from '../../assets/images/search18.png';
 
 const Medicine = () => {
     // 더미 데이터
-    const dummyDrugs = Array.from({ length: 100 }, (_, index) => ({
+    const dummymedicines = Array.from({ length: 100 }, (_, index) => ({
         image: "https://via.placeholder.com/50", // 이미지 더미 URL
         name: `제품명 ${index + 1}`,
         ingredient: `성분 ${index + 1}`,
@@ -17,13 +17,13 @@ const Medicine = () => {
         type: index % 2 === 0 ? '일반' : '전문'
     }));
 
-    const [drugs, setDrugs] = useState(dummyDrugs);
+    const [medicines, setmedicines] = useState(dummymedicines);
     const [currentPage, setCurrentPage] = useState(1);
-    const drugsPerPage = 10;
-    const totalPages = Math.ceil(drugs.length / drugsPerPage);
+    const medicinesPerPage = 10;
+    const totalPages = Math.ceil(medicines.length / medicinesPerPage);
 
     return (
-        <div id="drug" className="drug-container" >
+        <div id="medicine" className="medicine-container" >
 
             <div className="dsearch">
                 <h2>의약품 검색</h2>
@@ -101,7 +101,7 @@ const Medicine = () => {
             <div className="dresult">
                 <div className="result-header">
                     <h3>검색결과 리스트</h3>
-                    <span className="reault-count">총 {drugs.length}개</span>
+                    <span className="reault-count">총 {medicines.length}개</span>
                 </div>
                 <table className="dtable">
                     <thead>
@@ -116,15 +116,15 @@ const Medicine = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {drugs.slice((currentPage - 1) * drugsPerPage, currentPage * drugsPerPage).map((drug, index) => (
+                        {medicines.slice((currentPage - 1) * medicinesPerPage, currentPage * medicinesPerPage).map((medicine, index) => (
                             <>
                                 <tr>
-                                    <td><img className='pill-image' src={drug.image} alt="pill" /></td>
-                                    <td>{drug.name}</td>
-                                    <td>{drug.ingredient}</td>
-                                    <td>{drug.company}</td>
-                                    <td>{drug.form}</td>
-                                    <td>{drug.type}</td>
+                                    <td><img className='pill-image' src={medicine.image} alt="pill" /></td>
+                                    <td>{medicine.name}</td>
+                                    <td>{medicine.ingredient}</td>
+                                    <td>{medicine.company}</td>
+                                    <td>{medicine.form}</td>
+                                    <td>{medicine.type}</td>
                                     <td className='accordion-cell'>
                                         <img src={dropdown17} alt="열기" />
                                     </td>
@@ -132,31 +132,31 @@ const Medicine = () => {
                                 {/* 아코디언 내용 행 */}
                                 <tr className="accordion-content no-hover">
                                     <td colSpan="7">
-                                        <div className="drug-details">
+                                        <div className="medicine-details">
                                             <h4>제품 기본정보</h4>
-                                            <div className="drug-item">
-                                                <div className="drug-left">
-                                                    <div className="drug-info">
-                                                        <p><strong>제품명</strong>{drug.name}</p>
-                                                        <p><strong>성분/함량</strong>{drug.ingredient}</p>
-                                                        <p><strong>품목일련번호</strong>{drug.ingredient}</p>
-                                                        <p><strong>전문/일반</strong>{drug.type}</p>
-                                                        <p><strong>제조/수입사</strong>{drug.company}</p>
-                                                        <p><strong>제형</strong>{drug.ingredient}</p>
-                                                        <p><strong>의약품 모양</strong>{drug.ingredient}</p>
+                                            <div className="medicine-item">
+                                                <div className="medicine-left">
+                                                    <div className="medicine-info">
+                                                        <p><strong>제품명</strong>{medicine.name}</p>
+                                                        <p><strong>성분/함량</strong>{medicine.ingredient}</p>
+                                                        <p><strong>품목일련번호</strong>{medicine.ingredient}</p>
+                                                        <p><strong>전문/일반</strong>{medicine.type}</p>
+                                                        <p><strong>제조/수입사</strong>{medicine.company}</p>
+                                                        <p><strong>제형</strong>{medicine.ingredient}</p>
+                                                        <p><strong>의약품 모양</strong>{medicine.ingredient}</p>
                                                     </div>
-                                                    <div className="drug-info">
-                                                        <p><strong>제품영문명</strong>{drug.ingredient}</p>
-                                                        <p><strong>색깔</strong>{drug.ingredient}</p>
-                                                        <p><strong>품목허가일자</strong>{drug.ingredient}</p>
-                                                        <p><strong>성상</strong>{drug.ingredient}</p>
-                                                        <p><strong>분류번호</strong>{drug.ingredient}</p>
-                                                        <p><strong>분류명</strong>{drug.ingredient}</p>
-                                                        <p><strong>효능/효과</strong>{drug.ingredient}</p>
+                                                    <div className="medicine-info">
+                                                        <p><strong>제품영문명</strong>{medicine.ingredient}</p>
+                                                        <p><strong>색깔</strong>{medicine.ingredient}</p>
+                                                        <p><strong>품목허가일자</strong>{medicine.ingredient}</p>
+                                                        <p><strong>성상</strong>{medicine.ingredient}</p>
+                                                        <p><strong>분류번호</strong>{medicine.ingredient}</p>
+                                                        <p><strong>분류명</strong>{medicine.ingredient}</p>
+                                                        <p><strong>효능/효과</strong>{medicine.ingredient}</p>
                                                     </div>
                                                 </div>
-                                                <div className="drug-right">
-                                                    <img className='pill-detail-image' src={drug.image} alt="pill"  />
+                                                <div className="medicine-right">
+                                                    <img className='pill-detail-image' src={medicine.image} alt="pill"  />
                                                     <table className="dimension-table">
                                                         <thead>
                                                             <tr>
@@ -167,9 +167,9 @@ const Medicine = () => {
                                                         </thead>
                                                         <tbody>
                                                             <tr>
-                                                                <td>7{drug.length}</td>
-                                                                <td>7{drug.width}</td>
-                                                                <td>7{drug.thickness}</td>
+                                                                <td>7{medicine.length}</td>
+                                                                <td>7{medicine.width}</td>
+                                                                <td>7{medicine.thickness}</td>
                                                             </tr>
                                                         </tbody>
                                                     </table>

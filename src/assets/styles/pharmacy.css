@@ -31,31 +31,31 @@ body {
     color: #FFFFFF;
 }
 
-/* drug */
-#drug {
+/* medicine */
+#medicine {
     width: 1200px;
     margin: 0 auto;
     background-color: #fff;
 }
-#drug h3 {
+#medicine h3 {
     font-size: 20px;
     font-weight: bold;
     color: #154757;
 }
-#drug .dsearch {
+#medicine .dsearch {
     text-align: center;
     margin-bottom: 57px;
 }
-#drug .dsearch h2 {
+#medicine .dsearch h2 {
     font-size: 27px;
     color: #154757;
     margin-bottom: 30px;
 }
-#drug .dsearch .dsearch-bar {
+#medicine .dsearch .dsearch-bar {
     position: relative;
     display: inline-block;
 }
-#drug .dsearch .dsearch-bar .input-container {
+#medicine .dsearch .dsearch-bar .input-container {
     display: flex;
     width: 880px;
     border-radius: 30px;
@@ -64,7 +64,7 @@ body {
     border: 1px solid #ddd;
     overflow: hidden;
 }
-#drug .dsearch .dsearch-bar:focus-within .input-container {
+#medicine .dsearch .dsearch-bar:focus-within .input-container {
     display: flex;
     align-items: center;
     border-radius: 30px 30px 0 0;
@@ -72,7 +72,7 @@ body {
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     position: relative;
 }
-#drug .dsearch .dsearch-bar .input-container .search-logo {
+#medicine .dsearch .dsearch-bar .input-container .search-logo {
     position: absolute;
     left: 25px;
     top: 50%;
@@ -81,7 +81,7 @@ body {
     height: 30px;
     text-align: center;
 }
-#drug .dsearch .dsearch-bar .input-container input[type="text"] {
+#medicine .dsearch .dsearch-bar .input-container input[type="text"] {
     flex: 1;
     width: 100%;
     height: 60px;
@@ -89,7 +89,7 @@ body {
     border: none;
     outline: none;
 }
-#drug .dsearch .dsearch-bar .dsearch-button {
+#medicine .dsearch .dsearch-bar .dsearch-button {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -98,7 +98,7 @@ body {
     border: none;
     cursor: pointer;
 }
-#drug .dsearch .dsearch-bar .ddropdown-button {
+#medicine .dsearch .dsearch-bar .ddropdown-button {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -107,7 +107,7 @@ body {
     border: none;
     cursor: pointer;
 }
-#drug .dsearch .dsearch-bar .dresult-items {
+#medicine .dsearch .dsearch-bar .dresult-items {
     position: absolute;
     top: 100%;
     left: 0;
@@ -122,10 +122,10 @@ body {
     z-index: 1000;
     padding-right: 20px;
 }
-#drug .dsearch .dsearch-bar:focus-within .dresult-items {
+#medicine .dsearch .dsearch-bar:focus-within .dresult-items {
     display: block;
 }
-#drug .dsearch .dsearch-bar .dresult-items .dresult-item {
+#medicine .dsearch .dsearch-bar .dresult-items .dresult-item {
     display: flex;
     align-items: center;
     padding: 10px 20px;
@@ -133,41 +133,41 @@ body {
     padding: 15px;
     border-radius: 0 30px 30px 0;
 }
-#drug .dsearch .dsearch-bar .dresult-items .dresult-item:hover {
+#medicine .dsearch .dsearch-bar .dresult-items .dresult-item:hover {
     background-color: #569eb6;
     color: white;
 }
-#drug .dsearch .dsearch-bar .dresult-items .dresult-item img {
+#medicine .dsearch .dsearch-bar .dresult-items .dresult-item img {
     width: 20px;
     height: 20px;
     margin: 0 20px;
 }
-#drug .dsearch .dsearch-bar .dresult-items .dresult-item span {}
+#medicine .dsearch .dsearch-bar .dresult-items .dresult-item span {}
 
 
-#drug .ddetail-search {
+#medicine .ddetail-search {
     background-color: #fff;
 }
-/* #drug .ddetail-search h3 {} */
-#drug .ddetail-search .ddetail-title {
+/* #medicine .ddetail-search h3 {} */
+#medicine .ddetail-search .ddetail-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 }
-#drug .ddetail-search .ddetail-title p {
+#medicine .ddetail-search .ddetail-title p {
     font-size: 15px;
     color: #aaa;
 }
-#drug .ddetail-search form {
+#medicine .ddetail-search form {
     border-top: 1px solid #154757;
     border-bottom: 1px solid #154757;
 }
-#drug .ddetail-search form .dform-row {
+#medicine .ddetail-search form .dform-row {
     display: flex;
     margin: 30px 0;
 }
-#drug .ddetail-search form .dform-row label {
+#medicine .ddetail-search form .dform-row label {
     display: flex;
     width: 119px;
     font-size: 17px;
@@ -178,32 +178,32 @@ body {
     justify-content: center;
     
 }
-#drug .ddetail-search form .dform-row input[type="text"], 
-#drug .ddetail-search form .dform-row select {
+#medicine .ddetail-search form .dform-row input[type="text"], 
+#medicine .ddetail-search form .dform-row select {
     padding: 8px 10px;
     width: 457px;
     height: 40px;
     border: 1px solid #ddd;
     border-radius: 10px;
 }
-#drug .ddetail-search form .checkbox .check {
+#medicine .ddetail-search form .checkbox .check {
     display: flex;
     width: 457px;
 }
-#drug .ddetail-search form .checkbox .check label {
+#medicine .ddetail-search form .checkbox .check label {
     display: flex;
     width: 30px;
     margin: 0 20px 0 5px;
     font-size: 15px;
     color: #111;
 }
-#drug .ddetail-search form .dform-row select {}
-#drug .ddetail-search form .dform-row option {}
-#drug .ddetail-search form .dbutton-row {
+#medicine .ddetail-search form .dform-row select {}
+#medicine .ddetail-search form .dform-row option {}
+#medicine .ddetail-search form .dbutton-row {
     text-align: center;
     margin: 50px 0 25px 0;
 }
-#drug .ddetail-search form .dbutton-row .dreset-button, .dsubmit-button {
+#medicine .ddetail-search form .dbutton-row .dreset-button, .dsubmit-button {
     padding: 10px 40px;
     width: 132px;
     height: 39px;
@@ -211,34 +211,34 @@ body {
     border-radius: 10px;
     cursor: pointer;
 }
-#drug .ddetail-search form .dbutton-row .dreset-button {
+#medicine .ddetail-search form .dbutton-row .dreset-button {
     background-color: #ddd;
     color: white;
     font-size: 17px;
     margin-right: 25px;
 }
-#drug .ddetail-search form .dbutton-row .dsubmit-button {
+#medicine .ddetail-search form .dbutton-row .dsubmit-button {
     background-color: #154757;
     color: white;
     font-size: 17px;
 }
 
-#drug .dresult {
+#medicine .dresult {
     background-color: #fff;
     border-radius: 10px;
 }
-#drug .dresult .result-header {
+#medicine .dresult .result-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 90px 0 20px 0;
 }
-#drug .dresult .result-header h3 {}
-#drug .dresult .result-header span {
+#medicine .dresult .result-header h3 {}
+#medicine .dresult .result-header span {
     font-size: 15px;
     color: #111;
 }
-#drug .dresult .dtable {
+#medicine .dresult .dtable {
     width: 100%;
     max-width: 1200px;
     table-layout: fixed;
@@ -247,113 +247,113 @@ body {
     border: 1px solid #ddd;
     /* border-radius: 10px; */
 }
-#drug .dresult .dtable thead th, td {
+#medicine .dresult .dtable thead th, td {
     /* border: 1px solid #ddd; */
     text-align: left;
     padding: 0 30px;
     font-weight: normal;
 }
-#drug .dresult .dtable thead th {
+#medicine .dresult .dtable thead th {
     height: 40px;
     background-color: #154757;
     color: #fff;
     font-size: 18px;
     text-align: center;
 }
-#drug .dresult .dtable tbody td {
+#medicine .dresult .dtable tbody td {
     height: 79px;
     padding: 0 30px;
 }
-#drug .dresult .dtable tbody td img .pill-image {
+#medicine .dresult .dtable tbody td img .pill-image {
     width: 151px;
     height: 69px; 
     border-radius: 10px;
 }
-#drug .dresult .dtable tbody .accordion-cell {
+#medicine .dresult .dtable tbody .accordion-cell {
     text-align: left;
     padding-left: 0;
 
 }
-#drug .dresult .dtable tbody tr:hover {
+#medicine .dresult .dtable tbody tr:hover {
     background-color: #f5f5f5;
 }
-#drug .dresult .dtable tbody tr.no-hover:hover {
+#medicine .dresult .dtable tbody tr.no-hover:hover {
     background-color: transparent;
 }
-#drug .dresult .dtable thead th:nth-child(3),
-#drug .dresult .dtable tbody td:nth-child(3) {
+#medicine .dresult .dtable thead th:nth-child(3),
+#medicine .dresult .dtable tbody td:nth-child(3) {
     width: 400px;
 }
-#drug .dresult .dtable thead th:nth-child(4),
-#drug .dresult .dtable tbody td:nth-child(4),
-#drug .dresult .dtable thead th:nth-child(5),
-#drug .dresult .dtable tbody td:nth-child(5),
-#drug .dresult .dtable thead th:nth-child(6),
-#drug .dresult .dtable tbody td:nth-child(6) {
+#medicine .dresult .dtable thead th:nth-child(4),
+#medicine .dresult .dtable tbody td:nth-child(4),
+#medicine .dresult .dtable thead th:nth-child(5),
+#medicine .dresult .dtable tbody td:nth-child(5),
+#medicine .dresult .dtable thead th:nth-child(6),
+#medicine .dresult .dtable tbody td:nth-child(6) {
     text-align: center;
 }
-#drug .dresult .dtable thead th:nth-child(7),
-#drug .dresult .dtable tbody td:nth-child(7) {
+#medicine .dresult .dtable thead th:nth-child(7),
+#medicine .dresult .dtable tbody td:nth-child(7) {
     width: 50px;
     text-align: center;
     padding: 0;
 }
-#drug .accordion-content {
+#medicine .accordion-content {
     border-radius: 10px;
     border-top: none;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.2);
 }
-#drug .accordion-content td .drug-details {
+#medicine .accordion-content td .medicine-details {
     padding-bottom: 30px;
 }
-#drug .accordion-content td .drug-details h4 {
+#medicine .accordion-content td .medicine-details h4 {
     font-size: 18px;
     font-weight: bold;
     color: #154757;
     margin-bottom: 7px;
 }
-#drug .accordion-content td .drug-details .drug-item {
+#medicine .accordion-content td .medicine-details .medicine-item {
     display: flex;
     border-top: 1px solid #154757;
     font-size: 15px;
     gap: 40px;
 }
-#drug .accordion-content td .drug-details .drug-item .drug-left {
+#medicine .accordion-content td .medicine-details .medicine-item .medicine-left {
     display: flex;
     margin-top: 10px;
 }
-#drug .accordion-content td .drug-details .drug-item .drug-left .drug-info {
+#medicine .accordion-content td .medicine-details .medicine-item .medicine-left .medicine-info {
     flex: 1;
     min-width: 380px;
 }
-#drug .accordion-content td .drug-details .drug-item .drug-left .drug-info p {
+#medicine .accordion-content td .medicine-details .medicine-item .medicine-left .medicine-info p {
     display: block;
     color: #111;
     padding-left: 10px;
     margin: 20px 0;
 }
-#drug .accordion-content td .drug-details .drug-item .drug-left .drug-info strong {
+#medicine .accordion-content td .medicine-details .medicine-item .medicine-left .medicine-info strong {
     display: inline-block;
     width: 125px;
     color: #154757;
 }
-#drug .accordion-content td .drug-details .drug-item .drug-right {
+#medicine .accordion-content td .medicine-details .medicine-item .medicine-right {
     margin: 40px 30px 0 0;
 }
-#drug .accordion-content td .drug-details .drug-item .drug-right .pill-detail-image {
+#medicine .accordion-content td .medicine-details .medicine-item .medicine-right .pill-detail-image {
     width: 330px;
     height: 150px;
     margin: 0 0 10px 0;
 }
-#drug .accordion-content td .drug-details .drug-item .drug-right .dimension-table {
+#medicine .accordion-content td .medicine-details .medicine-item .medicine-right .dimension-table {
     margin-right: 26px;
     width: 100%;
     max-width: 328px;
     border-collapse: collapse;
     height: 65px;
 }
-#drug .accordion-content td .drug-details .drug-item .drug-right .dimension-table th,
-#drug .accordion-content td .drug-details .drug-item .drug-right .dimension-table td {
+#medicine .accordion-content td .medicine-details .medicine-item .medicine-right .dimension-table th,
+#medicine .accordion-content td .medicine-details .medicine-item .medicine-right .dimension-table td {
     width: 33.33%;
     height: 32px;
     padding: 0;
@@ -363,7 +363,7 @@ body {
     background-color: #fff;
     color: #111;
 }
-#drug .accordion-content td .drug-details .drug-item .drug-right .dimension-table th {
+#medicine .accordion-content td .medicine-details .medicine-item .medicine-right .dimension-table th {
     color: #154757;
 }
 
