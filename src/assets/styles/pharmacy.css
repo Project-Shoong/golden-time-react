@@ -36,6 +36,7 @@ body {
     width: 1200px;
     margin: 0 auto;
     background-color: #fff;
+    padding-top: 81px;
 }
 #medicine h3 {
     font-size: 20px;
@@ -59,7 +60,6 @@ body {
     display: flex;
     width: 880px;
     border-radius: 30px;
-    box-shadow: 15px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     border: 1px solid #ddd;
     overflow: hidden;
