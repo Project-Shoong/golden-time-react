@@ -1,10 +1,7 @@
 import {useState} from 'react';
 import '../../assets/styles/pharmacy.css';
+import { images } from '../../utils/images';
 import Pagination from '../../components/Pagination';
-import dropdown17 from '../../assets/images/dropdown17.png';
-import logo20 from '../../assets/images/logo20.png';
-import search20 from '../../assets/images/search20.png';
-import search18 from '../../assets/images/search18.png';
 
 const Medicine = () => {
     // 더미 데이터
@@ -29,22 +26,22 @@ const Medicine = () => {
                 <h2>의약품 검색</h2>
                 <div className="dsearch-bar">
                     <div className="input-container">
-                        <img className="search-logo" src={logo20} alt="goldtime logo" />
+                        <img className="search-logo" src={images['logo20.png']} alt="goldtime logo" />
                         <input type="text" placeholder="제품명/회사명 검색" name="" id="" />
                         <button className="ddropdown-button">
-                            <img src={dropdown17} alt="열기" />
+                            <img src={images['dropdown17.png']} alt="열기" />
                         </button>
                         <button className="dsearch-button">
-                            <img src={search20} alt="검색" />
+                            <img src={images['search20.png']} alt="검색" />
                         </button>
                     </div>
                     <div className="dresult-items">
                         <div className="dresult-item">
-                            <img src={search18} alt="관련검색어" />
+                            <img src={images['search16.png']} alt="관련검색어" />
                             <span>검색 결과 1</span>
                         </div>
                         <div className="dresult-item">
-                            <img src={search18} alt="관련검색어" />
+                            <img src={images['search16.png']} alt="관련검색어" />
                             <span>검색 결과 2</span>
                         </div>
                     </div>
@@ -126,7 +123,7 @@ const Medicine = () => {
                                     <td>{medicine.form}</td>
                                     <td>{medicine.type}</td>
                                     <td className='accordion-cell'>
-                                        <img src={dropdown17} alt="열기" />
+                                        <img src={images['dropdown17.png']} alt="열기" />
                                     </td>
                                 </tr>
                                 {/* 아코디언 내용 행 */}
