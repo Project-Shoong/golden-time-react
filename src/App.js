@@ -1,5 +1,5 @@
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
-import './assets/style/style.css';
+import './assets/styles/style.css';
 import Main from './pages/Main';
 import Emergency from './pages/emergency/Emergency';
 import Hospital from './pages/hospital/Hospital';
