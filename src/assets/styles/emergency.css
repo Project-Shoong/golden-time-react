@@ -229,6 +229,11 @@ body {
     border-radius: 5px;
     padding-left: 10px;
 } 
+#emergency .sidebar .search-boxes .search-box .input::placeholder {
+    font-family: 'Pretendard-Regular';
+    font-size: 15px;
+    color: #ddd;
+}
 #emergency .sidebar .search-boxes .search-box .search-button {
     width: 40px;
     height: 40px;

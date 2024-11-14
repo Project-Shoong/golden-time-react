@@ -1,17 +1,36 @@
+import { useState } from 'react';
 import '../../assets/styles/emergency.css';
 import { images } from '../../utils/images';
 import EmergencySearch from './EmergencySearch';
 import EmergencyList from './EmergencyList';
 import EmergencyDetail from './EmergencyDetail';
+import axios from 'axios';
 
 const Emergency = ()=>{
+    const [searchResults, setSearchResults] = useState([]);
+
+    const handleSearch = async (selectedSido, selectedRegion, searchTerm) => {
+        try {
+            const response = await axios.get('백엔드url', {
+                params: {
+                    sido: selectedSido,
+                    sidogun: selectedRegion,
+                    name: searchTerm
+                }
+            });
+            setSearchResults(response.data);
+        } catch (error) {
+            console.log("api 호출 중 에러 발생: ", error);
+        }
+    }
+
     return (
         <div id="emergency" className="emergency-container">
 
             <div className="sidebar scroll">
-                <EmergencySearch />
-                <div className="total-count r15b">총 119 건</div>
-                <EmergencyList />
+                <EmergencySearch onSearch={handleSearch} />
+                <div className="total-count r15b">총 {searchResults.length} 건</div>
+                <EmergencyList results={searchResults} />
             </div>
 
             <div className="situation-board scroll">
