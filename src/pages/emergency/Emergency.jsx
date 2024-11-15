@@ -7,17 +7,18 @@ import EmergencyDetail from './EmergencyDetail';
 import axios from 'axios';
 
 const Emergency = ()=>{
+    // 응급실 검색 결과를 저장하는 배열로, searchResults 상태 변수를 선언
     const [searchResults, setSearchResults] = useState([]);
 
+    // 검색 핸들러 get 요청을 보내며, params 객체로 검색조건들을 전달
     const handleSearch = async (selectedSido, selectedRegion, searchTerm) => {
         try {
-            const response = await axios.get('백엔드url', {
-                params: {
-                    sido: selectedSido,
-                    sidogun: selectedRegion,
-                    name: searchTerm
-                }
+            const response = await axios.get('http://localhost:8080/api/emergency-beds', {
+                sido: selectedSido,
+                sigungu: selectedRegion,
+                name: searchTerm
             });
+            // 응답 받은 데이터를 상태 변수에 저장하여 검색 결과로 표시
             setSearchResults(response.data);
         } catch (error) {
             console.log("api 호출 중 에러 발생: ", error);
@@ -28,6 +29,8 @@ const Emergency = ()=>{
         <div id="emergency" className="emergency-container">
 
             <div className="sidebar scroll">
+                {/* EmergencySearch를 렌더링하여 onSearch라는 이름으로 handleSearch 함수를 전달
+                검색조건을 입력하고 버튼을 클릭하면, onSearch 함수를 호출하여 조건에 맞는 데이터를 가져옴 */}
                 <EmergencySearch onSearch={handleSearch} />
                 <div className="total-count r15b">총 {searchResults.length} 건</div>
                 <EmergencyList results={searchResults} />
