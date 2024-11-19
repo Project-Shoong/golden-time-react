@@ -19,3 +19,22 @@ export const jeju = ["서귀포시","제주시","남제주군","북제주군"];
 export const chungbuk = ["제천시","청주시","충주시","괴산군","단양군","보은군","영동군","옥천군","음성군","증평군","진천군","청원군"];
 export const chungnam = ["계룡시", "공주시", "논산시", "당진시", "보령시", "서산시", "아산시", "천안시", "홍성군","금산군", "부여군", "서천군", "예산군", "청양군", "태안군"];
 export const sejong = ["세종특별자치시"];
+export const regionMap = {
+    "서울특별시" : seoul,
+    "부산광역시" : busan,
+    "대구광역시" : daegu,
+    "인천광역시" : incheon,
+    "광주광역시" : gwangju,
+    "대전광역시" : daejeon,
+    "울산광역시" : ulsan,
+    "세종특별자치시" : sejong,
+    "경기도" : gyeonggi,
+    "강원특별자치도" : gangwon,
+    "충청북도" : chungbuk,
+    "충청남도" : chungnam,
+    "전북특별자치도" : jeonbuk,
+    "전라남도" : jeonnam,
+    "경상북도" : gyeongsangbuk,
+    "경상남도" : gyeongsangnam,
+    "제주특별자치도" : jeju
+}
