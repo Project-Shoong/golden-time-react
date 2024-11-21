@@ -9,7 +9,7 @@ const EmergencySearch = ({onSearch}) => {
     const [keyword, setKeyword] = useState("");
 
     const handleSearch = () => {
-        if(!sido || !region) {
+        if(!selectedSido || !region) {
             alert("지역을 선택해주세요.");
         }
         onSearch({selectedSido, region, keyword: keyword || null});
@@ -24,7 +24,7 @@ const EmergencySearch = ({onSearch}) => {
                     value={selectedSido} 
                     onChange={(e) => {
                         setSido(e.target.value);
-                        setRegions(regionMap[e.target.value] || []);
+                        setRegions(regionMap.get(e.target.value) || []);
                         }}>
                     <option value="">시/도 선택</option>
                     {

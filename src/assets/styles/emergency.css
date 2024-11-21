@@ -249,7 +249,7 @@ body {
 }
 #emergency .sidebar .list {
     width: 360px;
-    height: 217px;
+    /* height: 217px; */
     margin: 4px 20px 0 15px;
     padding: 10px;
     /* border: 1px solid #154757; */

@@ -8,52 +8,71 @@ import axios from 'axios';
 
 const Emergency = ()=>{
 
-    const [searchResults, setSearchResults] = useState([]);
-    const [detailData, setDetailData] = useState(null);
+    const [realResults, setRealResults] = useState([]);
+    const [selectedEmergency, setSelectedEmergency] = useState(null);
+    const [selectedSido, setSelectedSido] = useState("");
+    const [region, setRegion] = useState("");
 
     const API_BASE_URL = "https://apis.data.go.kr/B552657/ErmctInfoInqireService";
 
-    const getSearchResults = async ({sido, region}) => {
-        await axios
-            .all([
+    const getSearchResults = async ({selectedSido, region, keyword}) => {
+        setSelectedSido(selectedSido);
+        setRegion(region);
+
+        try {
+            const [response1, response2] = await axios.all([
                 // 응급실 실시간 가용병상정보 조회
                 axios.get(`${API_BASE_URL}/getEmrrmRltmUsefulSckbdInfoInqire`, {
                     params: {
                         serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
-                        STAGE1: sido,
-                        STAGE2: region,
+                        STAGE1: selectedSido,
+                        STAGE2: region
                     },
                 }),
                 // 기관 정보 
                 axios.get(`${API_BASE_URL}/getEgytListInfoInqire`, {
                     params: {
                         serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
-                        Q0: sido,
-                        Q1: region,
+                        Q0: selectedSido,
+                        Q1: region
                     },
                 }),
-            ])
-            .then(
-                axios.spread((response1, response2) => {
-                    // 응답 데이터 추출
-                    const data1 = response1.data.response.body.items.item;
-                    const data2 = response2.data.response.body.items.item;
-                    // 병합
-                    const combinedResults = [...data1, ...data2];
-                })
+            ]);
+
+            const realTime = response1.data?.response?.body?.items?.item || [];
+            const organList = response2.data?.response?.body?.items?.item || [];
+
+            // 데이터 병합
+            const realData = organList.map((organItem) => {
+                const realItem = realTime.find((real) => real.hpid === organItem.hpid);
+                return {...organItem, ...realItem};
+            })
+
+            // keyword 기반 필터링
+            const filteredData = keyword ? realData.filter((item) => 
+                item.dutyName?.includes(keyword) || item.dutyAddr?.includes(keyword)
             )
-            .catch((error) => {
-                console.error("api 요청 실패: ", error);
-            });
+            : realData;
+            
+            setRealResults(filteredData);
+
+        } catch (error) {
+            console.error("api 요청 실패한 이유: ", error);
+        }
     };
+
+    // 클릭된 응급실 저장
+    const handleEmergencyClick = (selectedEmergency) => {
+        setSelectedEmergency(selectedEmergency);
+    }
 
     return (
         <div id="emergency" className="emergency-container">
 
             <div className="sidebar scroll">
                 <EmergencySearch onSearch={getSearchResults} />
-                <div className="total-count r15b">총 {searchResults.length} 건</div>
-                <EmergencyList results={searchResults} />
+                <div className="total-count r15b">총 {realResults.length} 건</div>
+                <EmergencyList results={realResults} onClick={handleEmergencyClick} />
             </div>
 
             <div className="situation-board scroll">
@@ -61,7 +80,7 @@ const Emergency = ()=>{
                     <div className="name r20b">응급실 종합상황판</div>
                     <img src={images['close16.png']} alt="" />
                 </div>
-                <EmergencyDetail />
+                <EmergencyDetail selectedEmergency={selectedEmergency} selectedSido={selectedSido} region={region} />
             </div>
             
             <div className="emergency-map">
