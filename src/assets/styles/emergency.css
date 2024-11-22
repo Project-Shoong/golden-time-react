@@ -195,6 +195,8 @@ body {
 #emergency .sidebar {
     float: left;
     width: 400px;
+    height: calc(100vh - 110px);
+    margin-top: 95px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     overflow-x: hidden;
     overflow-y: auto;
@@ -256,6 +258,7 @@ body {
     border-radius: 10px;
     margin-bottom: 10px;
     background-color: #fff;
+    cursor: pointer;
 }
 #emergency .sidebar .list .title {
     display: flex;
@@ -280,6 +283,9 @@ body {
     border-spacing: 0;
     overflow: hidden;
 }
+#emergency .sidebar .list .s-table img {
+    margin-right: 5px;
+}
 #emergency .sidebar .list .s-table th,
 #emergency .sidebar .list .s-table td {
     height: 22px;
@@ -287,6 +293,9 @@ body {
     text-align: center;
     margin-bottom: 8px;
     font-weight: normal;
+}
+#emergency .sidebar .list .s-table td {
+    font-size: 13px;
 }
 #emergency .sidebar .list .s-table thead tr {
     background-color: #154757;
@@ -301,20 +310,30 @@ body {
 }
 #emergency .situation-board {
     width: 720px;
-    height: 980px;
+    height: calc(100vh - 110px);
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     padding: 14px 25px 20px 18px;
-    margin: 16px 0 0 22px;
+    margin: 95px 10px 16px 22px;
     overflow-x: hidden;
     overflow-y: auto;
-    padding-bottom: 60px;
+    padding-bottom: 10px;
     position: relative;
+}
+#emergency .simple-detail {
+    height: calc(100vh - 110px);
+    margin: 95px 10px 16px 22px;
+    width: 200px;
 }
 #emergency .situation-board .top-title {
     display: flex;
     justify-content: space-between;
     padding-bottom: 10px;
     border-bottom: 1px solid #d9d9d9;
+}
+#emergency .situation-board .top-title .close-button {
+    background-color: #fff;
+    border: none;
+    cursor: pointer;
 }
 #emergency .situation-board .top-title img {
     width: 16px;
@@ -323,17 +342,24 @@ body {
 #emergency .situation-board .emergency-name {
     margin: 16px 0 20px;
 }
+#emergency .situation-board .big-item {
+    margin-bottom: 25px;
+    width: 677px; 
+}
 #emergency .situation-board .big-item .title,
 #emergency .situation-board .big-item .sub-title {
     margin-bottom: 6px;
 }
 #emergency .situation-board .big-item .b-table {
-    width: 677px;
+    width: 100%;
     table-layout: fixed;
     border: none;
     border-collapse: collapse;
     font-size: 13px;
     margin-bottom: 25px;
+}
+#emergency .situation-board .big-item .b-table img {
+    margin-right: 5px;
 }
 #emergency .situation-board .big-item .item-boxs .item-box .b-table {
     margin-bottom: 15px !important;
@@ -352,6 +378,12 @@ body {
     text-align: left;
     padding-left: 10px;
     margin-bottom: 15px !important;
+}
+#emergency .situation-board .big-item .m-table td:first-child {
+    width: 75%;
+}
+#emergency .situation-board .big-item .m-table td:nth-child(2) {
+    width: 25%;
 }
 #emergency .situation-board .hospital-detail {
     display: flex;
@@ -374,6 +406,7 @@ body {
     z-index: 1000;
 }
 #emergency .emergency-map {}
+
 
 /* 라인잡기 */
 div {

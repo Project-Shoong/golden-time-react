@@ -6,12 +6,24 @@ import EmergencyList from './EmergencyList';
 import EmergencyDetail from './EmergencyDetail';
 import axios from 'axios';
 
-const Emergency = ()=>{
+const SimpleDetail = ({selectedEmergency}) => {
+    return (
+        <div className="simple-detail">
+            <h2 className="emergency-name b25mc">{selectedEmergency.dutyName}</h2>
+            <div className="hospital-detail">
+                <div>종합상황판이 없어요.</div>
+                <button className="button r17w">병원 상세보기</button>
+            </div>
+        </div>
+    );
+}
 
+const Emergency = ()=>{
     const [realResults, setRealResults] = useState([]);
     const [selectedEmergency, setSelectedEmergency] = useState(null);
     const [selectedSido, setSelectedSido] = useState("");
     const [region, setRegion] = useState("");
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
 
     const API_BASE_URL = "https://apis.data.go.kr/B552657/ErmctInfoInqireService";
 
@@ -26,7 +38,9 @@ const Emergency = ()=>{
                     params: {
                         serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
                         STAGE1: selectedSido,
-                        STAGE2: region
+                        STAGE2: region,
+                        pageNo: 1,
+                        numOfRows: 30
                     },
                 }),
                 // 기관 정보 
@@ -34,7 +48,9 @@ const Emergency = ()=>{
                     params: {
                         serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
                         Q0: selectedSido,
-                        Q1: region
+                        Q1: region,
+                        pageNo: 1,
+                        numOfRows: 30
                     },
                 }),
             ]);
@@ -61,9 +77,21 @@ const Emergency = ()=>{
         }
     };
 
-    // 클릭된 응급실 저장
+    // 클릭된 응급실
     const handleEmergencyClick = (selectedEmergency) => {
         setSelectedEmergency(selectedEmergency);
+        setIsDetailOpen(true);
+    }
+
+    // // 응급실 종합상환판 보이기
+    // const handleShowBoard = () => {
+    //     setSelectedEmergency(null);
+    // }
+
+    // 종합상환판 닫힘
+    const handleCloseDetail = () => {
+        setSelectedEmergency(null);
+        setIsDetailOpen(false);
     }
 
     return (
@@ -75,13 +103,33 @@ const Emergency = ()=>{
                 <EmergencyList results={realResults} onClick={handleEmergencyClick} />
             </div>
 
-            <div className="situation-board scroll">
-                <div className="top-title">
-                    <div className="name r20b">응급실 종합상황판</div>
-                    <img src={images['close16.png']} alt="" />
+            {isDetailOpen && (
+                <div className={selectedEmergency?.dutyEmclsName === "응급실운영신고기관" ? "simple-detail" : "situation-board scroll"}>
+                    {selectedEmergency ? ( 
+                        selectedEmergency.dutyEmclsName === "응급실운영신고기관" ? (
+                            <>
+                                <h2 className="emergency-name b25mc">{selectedEmergency.dutyName}</h2>
+                                <div className="hospital-detail">
+                                    <div>종합상황판이 없어요.</div>
+                                    <button className="button r17w">병원 상세보기</button>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="top-title">
+                                    <div className="name r20b">응급실 종합상황판</div>
+                                    <button className="close-button" onClick={handleCloseDetail}>
+                                        <img src={images['close16.png']} alt="닫기" />
+                                    </button>
+                                </div>
+                                <EmergencyDetail selectedEmergency={selectedEmergency} selectedSido={selectedSido} region={region} />
+                            </>
+                        )
+                    ) : (
+                        <div>선택된 응급실 정보가 없습니다.</div>
+                    )}
                 </div>
-                <EmergencyDetail selectedEmergency={selectedEmergency} selectedSido={selectedSido} region={region} />
-            </div>
+            )}
             
             <div className="emergency-map">
                 <p>지도영역(api이용하기)</p> 

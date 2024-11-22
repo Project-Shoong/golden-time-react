@@ -4,11 +4,39 @@ import { useEffect, useState } from "react";
 
 const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
 
-    const [matchedAcceptance, setAcceptance] = useState(null);
+    const [matchedAcceptance, setAcceptance] = useState({});
     const [matchedMessages, setMessages] = useState([]);
 
     const API_BASE_URL = "https://apis.data.go.kr/B552657/ErmctInfoInqireService";
+
+    const emergencyMessages = matchedMessages?.filter((msg) => msg.symTypCodMag === "응급실") || [];
+    const nonEmergencyMessages = matchedMessages?.filter((msg) => msg.symTypCodMag !== "응급실") || [];
+
     
+    // detail, list 에서 사용
+    const getImage = (value, total, type) => {
+        if(!value || !total || total === 0) return null;
+        
+        const percentage = (value / total) * 100;
+        
+        if(type === "general") {
+            if(percentage >= 80) return images['green_circle11.png'];
+            if(percentage >= 50) return images['yellow_circle11.png'];
+            return images['red_circle11.png'];
+        } else if (type === "isolation") {
+            if(percentage === 100) return images['green_circle11.png'];
+            if(percentage >= 50) return images['yellow_circle11.png'];
+            return images['red_circle11.png'];
+        }
+        return null;
+    };
+    const formatField = (field1, field2) => {
+        return field1 && field2 ? `${field1} / ${field2}` : "N/A";
+    };
+    const getStyleForText = (text) => {
+        return text == "정보없음" ? {color: "gray"} : {};
+    };
+
     const getDetailResults = async () => {
         if(!selectedEmergency) return;
 
@@ -19,7 +47,9 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                     params: {
                         serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
                         STAGE1: selectedSido,
-                        STAGE2: region
+                        STAGE2: region,
+                        pageNo: 1,
+                        numOfRows: 30
                     },
                 }),
                 // 응급실 메시지 조회
@@ -27,42 +57,48 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                     params: {
                         serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
                         Q0: selectedSido,
-                        Q1: region
+                        Q1: region,
+                        pageNo: 1,
+                        numOfRows: 30
                     },
                 }),
             ])
-
-            // 데이터 잘 받고 있니?
-            console.log("selectedEmergency ! 넌 어떤 데이터를 가지고 있니", selectedEmergency);
             
             // 각 상태에 데이터 저장
             const acceptance = response1.data?.response?.body?.items?.item || [];
             const messages = response2.data?.response?.body?.items?.item || [];
             
             // 선택된 응급실 여부 일치
-            const matchedAcceptance = acceptance.find((item) => item.hpid === selectedEmergency.hpid);
-            const matchedMessages = messages.filter((item) => item.hpid === selectedEmergency.hpid);
+            const matchedAcceptance = acceptance.find((item) => item.hpid === selectedEmergency.hpid) || [];
+            const matchedMessages = messages.filter((item) => item.hpid === selectedEmergency.hpid) || [];
             
             setAcceptance(matchedAcceptance);
             setMessages(matchedMessages);
 
-            console.log("중증질환자 수용가능 정보 조회는", matchedAcceptance);
-            console.log("응급실 메시지 조회는", matchedMessages);
+            console.log("무슨 데이터를 가지고 오는건지? ", selectedEmergency);
 
         } catch (error) {
             console.error("api 요청 실패한 이유: ", error);
         }
     };
 
-    // selectedEmergency가 변경될 때마다 상세 데이터 요청
     useEffect(() => {
         getDetailResults();
     }, [selectedEmergency]);
 
+    const formatDateTime = (dateTime) => {
+        if (!dateTime) return "날짜 없음";
+        if (typeof dateTime === "number") dateTime = dateTime.toString();
+        if (typeof dateTime === "string" && dateTime.length === 14) {
+            return `${dateTime.substring(0, 4)}-${dateTime.substring(4, 6)}-${dateTime.substring(6, 8)} ` +
+                   `${dateTime.substring(8, 10)}:${dateTime.substring(10, 12)}:${dateTime.substring(12, 14)}`;
+        }
+        return "올바르지 않은 날짜 형식";
+    };
+
     if(!selectedEmergency) {
         return <div>선택된 응급실 정보가 없습니다.</div>;
     }
-
     return (
         <div className="emergency-detail">
             <div className="emergency-name b25mc">{selectedEmergency.dutyName}</div>
@@ -77,10 +113,30 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                             <td>일반격리</td>
                         </tr>
                         <tr className="b13b">
-                            <td><img src={images['red_circle11.png']} alt="" /> {selectedEmergency.hvec} / {selectedEmergency.hvs01} </td>
-                            <td> {selectedEmergency.hv27} / {selectedEmergency.hvs59} </td>
-                            <td> {selectedEmergency.hv29} / {selectedEmergency.hvs03} </td>
-                            <td> {selectedEmergency.hv30} / {selectedEmergency.hvs04} </td>
+                            <td>
+                                {getImage(selectedEmergency.hvec, selectedEmergency.hvs01, "general") && (
+                                    <img src={getImage(selectedEmergency.hvec, selectedEmergency.hvs01, "general")} alt="일반" />
+                                )}
+                                {formatField(selectedEmergency.hvec, selectedEmergency.hvs01)} 
+                            </td>
+                            <td>
+                                {getImage(selectedEmergency.hv27, selectedEmergency.hvs59, "isolation") && (
+                                    <img src={getImage(selectedEmergency.hv27, selectedEmergency.hvs59, "isolation")} alt="일반" />
+                                )}
+                                {formatField(selectedEmergency.hv27, selectedEmergency.hvs59)} 
+                            </td>
+                            <td>
+                                {getImage(selectedEmergency.hv29, selectedEmergency.hvs03, "isolation") && (
+                                    <img src={getImage(selectedEmergency.hv29, selectedEmergency.hvs03, "isolation")} alt="일반" />
+                                )}
+                                {formatField(selectedEmergency.hv29, selectedEmergency.hvs03)} 
+                            </td>
+                            <td>
+                                {getImage(selectedEmergency.hv30, selectedEmergency.hvs04, "isolation") && (
+                                    <img src={getImage(selectedEmergency.hv30, selectedEmergency.hvs04, "isolation")} alt="일반" />
+                                )}
+                                {formatField(selectedEmergency.hv30, selectedEmergency.hvs04)} 
+                            </td>
                         </tr>
                         <tr className="b15b">
                             <td>외상소생실</td>
@@ -89,10 +145,25 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                             <td>소아일반격리</td>
                         </tr>
                         <tr className="b13b">
-                            <td> {} / {} </td>
-                            <td> {selectedEmergency.hv28} / {selectedEmergency.hvs02} </td>
-                            <td> {selectedEmergency.hv15} / {selectedEmergency.hvs48} </td>
-                            <td> {selectedEmergency.hv16} / {selectedEmergency.hvs49} </td>
+                            <td style={getStyleForText("정보없음")}>정보없음</td>
+                            <td>
+                                {getImage(selectedEmergency.hv28, selectedEmergency.hvs02, "general") && (
+                                    <img src={getImage(selectedEmergency.hv28, selectedEmergency.hvs02, "general")} alt="소아" />
+                                )}
+                                {formatField(selectedEmergency.hv28, selectedEmergency.hvs02)} 
+                            </td>
+                            <td>
+                                {getImage(selectedEmergency.hv15, selectedEmergency.hvs48, "isolation") && (
+                                    <img src={getImage(selectedEmergency.hv15, selectedEmergency.hvs48, "isolation")} alt="소아음압격리" />
+                                )}
+                                {formatField(selectedEmergency.hv15, selectedEmergency.hvs48)} 
+                            </td>
+                            <td>
+                                {getImage(selectedEmergency.hv16, selectedEmergency.hvs49, "isolation") && (
+                                    <img src={getImage(selectedEmergency.hv16, selectedEmergency.hvs49, "isolation")} alt="소아일반격리" />
+                                )}
+                                {formatField(selectedEmergency.hv16, selectedEmergency.hvs49)} 
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -111,10 +182,10 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                                     <td>신생아</td>
                                 </tr>
                                 <tr>
-                                    <td> {selectedEmergency.hvicc} / {selectedEmergency.hvs17} </td>
-                                    <td> {selectedEmergency.hv35} / {selectedEmergency.hvs18} </td>
-                                    <td> {selectedEmergency.hv32} / {selectedEmergency.hvs09} </td>
-                                    <td> {selectedEmergency.hvncc} / {selectedEmergency.hvs08} </td>
+                                    <td> {formatField(selectedEmergency.hvicc, selectedEmergency.hvs17)} </td>
+                                    <td> {formatField(selectedEmergency.hv35, selectedEmergency.hvs18)} </td>
+                                    <td> {formatField(selectedEmergency.hv32, selectedEmergency.hvs09)} </td>
+                                    <td> {formatField(selectedEmergency.hvncc, selectedEmergency.hvs08)} </td>
                                 </tr>
                                 <tr>
                                     <td>내과</td>
@@ -123,10 +194,10 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                                     <td>화상</td>
                                 </tr>
                                 <tr>
-                                    <td> {selectedEmergency.hv2} / {selectedEmergency.hvs06} </td>
-                                    <td> {selectedEmergency.hv34} / {selectedEmergency.hvs15} </td>
-                                    <td> {selectedEmergency.hvcc} / {selectedEmergency.hvs11} </td>
-                                    <td> {selectedEmergency.hv8} / {selectedEmergency.hvs13} </td>
+                                    <td> {formatField(selectedEmergency.hv2, selectedEmergency.hvs06)} </td>
+                                    <td> {formatField(selectedEmergency.hv34, selectedEmergency.hvs15)} </td>
+                                    <td> {formatField(selectedEmergency.hvcc, selectedEmergency.hvs11)} </td>
+                                    <td> {formatField(selectedEmergency.hv8, selectedEmergency.hvs13)} </td>
                                 </tr>
                                 <tr>
                                     <td>외과</td>
@@ -135,9 +206,9 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td> {selectedEmergency.hv3} / {selectedEmergency.hvs07} </td>
-                                    <td> {selectedEmergency.hv6} / {selectedEmergency.hvs12} </td>
-                                    <td> {selectedEmergency.hvccc} / {selectedEmergency.hvs16} </td>
+                                    <td> {formatField(selectedEmergency.hv3, selectedEmergency.hvs07)} </td>
+                                    <td> {formatField(selectedEmergency.hv6, selectedEmergency.hvs12)} </td>
+                                    <td> {formatField(selectedEmergency.hvccc, selectedEmergency.hvs16)} </td>
                                     <td></td>
                                 </tr>
                             </tbody>
@@ -154,10 +225,10 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                                     <td>중환자실</td>
                                 </tr>
                                 <tr>
-                                    <td> {selectedEmergency.hv36} / {selectedEmergency.hvs19} </td>
-                                    <td> {} / {} </td>
-                                    <td> {} / {} </td>
-                                    <td> {selectedEmergency.hv31} / {selectedEmergency.hvs05} </td>
+                                    <td> {formatField(selectedEmergency.hv36, selectedEmergency.hvs19)} </td>
+                                    <td style={getStyleForText("정보없음")}> 정보없음 </td>
+                                    <td style={getStyleForText("정보없음")}> 정보없음 </td>
+                                    <td> {formatField(selectedEmergency.hv31, selectedEmergency.hvs05)} </td>
                                 </tr>
                                 <tr>
                                     <td>중환자실 음압격리</td>
@@ -168,34 +239,33 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                                 <tr>
                                     <td> {} / {selectedEmergency.hvs50 } </td>
                                     <td> {} / {selectedEmergency.hvs51 } </td>
-                                    <td> {selectedEmergency.hv37} / {selectedEmergency.hvs20} </td>
-                                    <td> {selectedEmergency.hv33} / {selectedEmergency.hvs10} </td>
+                                    <td> {formatField(selectedEmergency.hv37, selectedEmergency.hvs20)} </td>
+                                    <td> {formatField(selectedEmergency.hv33, selectedEmergency.hvs10)} </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                     <div className="item-box">
                         <div className="sub-title r15b">외상전용</div>
-                            <table className="b-table">
-                                <tbody>
-                                    <tr>
-                                        <td>중환자실</td>
-                                        <td>입원실</td>
-                                        <td>수술실</td>
-                                        <td></td>
-                                    </tr>
-                                    <tr>
-                                        <td> {} / {} </td>
-                                        <td> {} / {} </td>
-                                        <td> {} / {} </td>
-                                        <td> {} / {} </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <table className="b-table">
+                            <tbody>
+                                <tr>
+                                    <td>중환자실</td>
+                                    <td>입원실</td>
+                                    <td>수술실</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td style={getStyleForText("정보없음")}> 정보없음 </td>
+                                    <td style={getStyleForText("정보없음")}> 정보없음 </td>
+                                    <td style={getStyleForText("정보없음")}> 정보없음 </td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     <div className="item-box">
                         <div className="sub-title r15b">입원실/기타</div>
-                        <div>
                         <table className="b-table">
                             <tbody>
                                 <tr>
@@ -205,10 +275,10 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                                     <td>[기타] 수술실</td>
                                 </tr>
                                 <tr>
-                                    <td> {selectedEmergency.hvgc} / {selectedEmergency.hvs38} </td>
-                                    <td> {selectedEmergency.hv41} / {selectedEmergency.hvs25} </td>
-                                    <td> {selectedEmergency.hv40} / {selectedEmergency.hvs24} </td>
-                                    <td> {selectedEmergency.hvoc} / {selectedEmergency.hvs22} </td>
+                                    <td> {formatField(selectedEmergency.hvgc, selectedEmergency.hvs38)} </td>
+                                    <td> {formatField(selectedEmergency.hv41, selectedEmergency.hvs25)} </td>
+                                    <td> {formatField(selectedEmergency.hv40, selectedEmergency.hvs24)} </td>
+                                    <td> {formatField(selectedEmergency.hvoc, selectedEmergency.hvs22)} </td>
                                 </tr>
                                 <tr>
                                     <td>[기타] 분만실</td>
@@ -217,34 +287,33 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td> {selectedEmergency.hv42 } / {selectedEmergency.hvs26} </td>
-                                    <td> {selectedEmergency.hv43} / {selectedEmergency.hvs36} </td>
+                                    <td> {formatField(selectedEmergency.hv42, selectedEmergency.hvs26)} </td>
+                                    <td> {formatField(selectedEmergency.hv43, selectedEmergency.hvs36)} </td>
                                     <td></td>
                                     <td></td>
                                 </tr>
                             </tbody>
                         </table>
-                        </div>
                     </div>
                 </div>
             </div>
             <div className="big-item">
                 <div className="title b20b">중증응급질환</div>
                 <table className="b-table r15b">
-                    {
-                        matchedAcceptance?.MKioskTy1 ? (
-                        <tbody>
-                            <tr>
+                    <tbody>
+                        {matchedAcceptance ? (
+                            <>
+                                <tr>
                                 <td>[재관류중재술] 심근경색</td>
                                 <td>[재관류중재술] 뇌경색</td>
                                 <td>[뇌출혈수술] 거미막하출혈</td>
                                 <td>[뇌출혈수술] 거미막하출혈 외</td>
                             </tr>
                             <tr>
-                                <td> {matchedAcceptance.MKioskTy1} </td>
-                                <td> {matchedAcceptance.MKioskTy2} </td>
-                                <td> {matchedAcceptance.MKioskTy3} </td>
-                                <td> {matchedAcceptance.MKioskTy4} </td>
+                                <td> {matchedAcceptance.MKioskTy1 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy2 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy3 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy4 || "정보 없음"} </td>
                             </tr>
                             <tr>
                                 <td>[대동맥응급] 흉부</td>
@@ -253,10 +322,10 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                                 <td>[담낭담관질환] 담도포함질환</td>
                             </tr>
                             <tr>
-                                <td> {matchedAcceptance.MKioskTy5} </td>
-                                <td> {matchedAcceptance.MKioskTy6} </td>
-                                <td> {matchedAcceptance.MKioskTy7} </td>
-                                <td> {matchedAcceptance.MKioskTy8} </td>
+                                <td> {matchedAcceptance.MKioskTy5 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy6 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy7 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy8 || "정보 없음"} </td>
                             </tr>
                             <tr>
                                 <td>[복부응급수술] 비외상</td>
@@ -265,10 +334,10 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                                 <td>[사지접합] 수족지접합 외</td>
                             </tr>
                             <tr>
-                                <td> {matchedAcceptance.MKioskTy9} </td>
-                                <td> {matchedAcceptance.MKioskTy10} </td>
-                                <td> {matchedAcceptance.MKioskTy20} </td>
-                                <td> {matchedAcceptance.MKioskTy21} </td>
+                                <td> {matchedAcceptance.MKioskTy9 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy10 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy20 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy21 || "정보 없음"} </td>
                             </tr>
                             <tr>
                                 <td>[응급내시경] 성인 위장관</td>
@@ -277,10 +346,10 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                                 <td>[응급내시경] 영유아 기관지</td>
                             </tr>
                             <tr>
-                                <td> {matchedAcceptance.MKioskTy11} </td>
-                                <td> {matchedAcceptance.MKioskTy12} </td>
-                                <td> {matchedAcceptance.MKioskTy13} </td>
-                                <td> {matchedAcceptance.MKioskTy14} </td>
+                                <td> {matchedAcceptance.MKioskTy11 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy12 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy13 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy14 || "정보 없음"} </td>
                             </tr>
                             <tr>
                                 <td>[산부인과응급] 분만</td>
@@ -289,10 +358,10 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                                 <td>[저체중출생아] 집중치료</td>
                             </tr>
                             <tr>
-                                <td> {matchedAcceptance.MKioskTy16} </td>
-                                <td> {matchedAcceptance.MKioskTy17} </td>
-                                <td> {matchedAcceptance.MKioskTy18} </td>
-                                <td> {matchedAcceptance.MKioskTy15} </td>
+                                <td> {matchedAcceptance.MKioskTy16 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy17 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy18 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy15 || "정보 없음"} </td>
                             </tr>
                             <tr>
                                 <td>[응급투석] HD</td>
@@ -301,10 +370,10 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                                 <td>[영상의학혈관중재] 영유아</td>
                             </tr>
                             <tr>
-                                <td> {matchedAcceptance.MKioskTy22} </td>
-                                <td> {matchedAcceptance.MKioskTy23} </td>
-                                <td> {matchedAcceptance.MKioskTy26} </td>
-                                <td> {matchedAcceptance.MKioskTy27} </td>
+                                <td> {matchedAcceptance.MKioskTy22 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy23 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy26 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy27 || "정보 없음"} </td>
                             </tr>
                             <tr>
                                 <td>[정신과적응급] 폐쇄병동입원</td>
@@ -313,18 +382,18 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                                 <td></td>
                             </tr>
                             <tr>
-                                <td> {matchedAcceptance.MKioskTy24} </td>
-                                <td> {matchedAcceptance.MKioskTy19} </td>
-                                <td> {matchedAcceptance.MKioskTy25} </td>
+                                <td> {matchedAcceptance.MKioskTy24 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy19 || "정보 없음"} </td>
+                                <td> {matchedAcceptance.MKioskTy25 || "정보 없음"} </td>
                                 <td></td>
                             </tr>
-                        </tbody>
+                            </>
                         ) : (
                             <tr>
-                                <td colSpan="4">중증질환자 정보가 없습니다.</td>
+                                <td colSpan="4">중증 응급질환 정보가 없습니다.</td>
                             </tr>
-                        )
-                    }
+                        )}
+                    </tbody>
                 </table>
             </div>
             <div className="big-item">
@@ -338,10 +407,10 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                             <td>CRRT</td>
                         </tr>
                         <tr>
-                            <td> {selectedEmergency.hvventiayn} / {selectedEmergency.hvs30} </td>
-                            <td> {selectedEmergency.hvventisoayn} / {selectedEmergency.hvs31} </td>
-                            <td> {selectedEmergency.hvincuayn} / {selectedEmergency.hvs32} </td>
-                            <td> {selectedEmergency.hvcrrtayn} / {selectedEmergency.hvs33} </td>
+                            <td> {formatField(selectedEmergency.hvventiayn, selectedEmergency.hvs30)} </td>
+                            <td> {formatField(selectedEmergency.hvventisoayn, selectedEmergency.hvs31)} </td>
+                            <td> {formatField(selectedEmergency.hvincuayn, selectedEmergency.hvs32)} </td>
+                            <td> {formatField(selectedEmergency.hvcrrtayn, selectedEmergency.hvs33)} </td>
                         </tr>
                         <tr>
                             <td>ECMO</td>
@@ -350,10 +419,10 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                             <td>CT</td>
                         </tr>
                         <tr>
-                            <td> {selectedEmergency.hvecmoayn} / {selectedEmergency.hvs34} </td>
-                            <td> {selectedEmergency.hvhypoayn} / {selectedEmergency.hvs35} </td>
-                            <td> {selectedEmergency.hvoxyayn} / {selectedEmergency.hvs37} </td>
-                            <td> {selectedEmergency.hvctayn} / {selectedEmergency.hvs27} </td>
+                            <td> {formatField(selectedEmergency.hvecmoayn, selectedEmergency.hvs34)} </td>
+                            <td> {formatField(selectedEmergency.hvhypoayn, selectedEmergency.hvs35)} </td>
+                            <td> {formatField(selectedEmergency.hvoxyayn, selectedEmergency.hvs37)} </td>
+                            <td> {formatField(selectedEmergency.hvctayn, selectedEmergency.hvs27)} </td>
                         </tr>
                         <tr>
                             <td>MRI</td>
@@ -362,8 +431,8 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                             <td></td>
                         </tr>
                         <tr>
-                            <td> {selectedEmergency.hvmriayn} / {selectedEmergency.hvs28} </td>
-                            <td> {selectedEmergency.hvangioayn} / {selectedEmergency.hvs29} </td>
+                            <td> {formatField(selectedEmergency.hvmriayn, selectedEmergency.hvs28)} </td>
+                            <td> {formatField(selectedEmergency.hvangioayn, selectedEmergency.hvs29)} </td>
                             <td></td>
                             <td></td>
                         </tr>
@@ -375,27 +444,19 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                 <div className="e-message">
                     <div className="sub-title r15mc">응급실 메시지</div>
                     <table className="b-table m-table r15b">
-                        <thead>
-                            <tr>
-                                <th>메시지 내용</th>
-                                <th>등록일시</th>
-                            </tr>
-                        </thead>
                         <tbody>
-                            {
-                                matchedMessages.length > 0 ? (
-                                    matchedMessages.map((msg, index) => (
+                            {emergencyMessages?.length > 0 ? (
+                                emergencyMessages.map((msg, index) => (
                                         <tr key={index}>
                                             <td>{msg.symBlkMsg || "메시지 없음"}</td>
-                                            <td>{msg.symBlkSttDtm || "날짜 없음"}</td>
+                                            <td>{formatDateTime(msg.symBlkSttDtm)}</td>
                                         </tr>
                                     ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="2">응급실 메시지가 없습니다.</td>
-                                    </tr>
-                                )
-                            }
+                            ) : (
+                                <tr>
+                                    <td colSpan="2">응급실 메시지가 없습니다.</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -403,10 +464,18 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                     <div className="sub-title r15f0">진료불가능 메시지</div>
                     <table className="b-table m-table r15b">
                         <tbody>
-                            <tr>
-                                <td>[중증화상] 인력부족 등록일시 : 2024-11-07 00:00:00</td>
-                                <td> {} </td>
-                            </tr>
+                            {nonEmergencyMessages?.length > 0 ? (
+                                nonEmergencyMessages.map((msg, index) => (
+                                        <tr key={index}>
+                                            <td>[{msg.symTypCodMag || "없음"}] {msg.symBlkMsg || "메시지 없음"}</td>
+                                            <td>{formatDateTime(msg.symBlkSttDtm)}</td>
+                                        </tr>
+                                    ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="2">진료불가능 메시지가 없습니다.</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
