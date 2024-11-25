@@ -20,7 +20,6 @@ const SimpleDetail = ({selectedEmergency}) => {
 }
 
 const Emergency = ()=>{
-    
     const {Tmapv2} = window;
     const mapRef = useRef(null);
     const [markers, setMarkers] = useState([]);

@@ -32,6 +32,11 @@ body {
 }
 
 /* medicine */
+#medicine .r17b{
+    font-family: 'Pretendard-Regular';
+    font-size: 17px;
+    color: #111;
+}
 #medicine {
     width: 1200px;
     margin: 0 auto;
@@ -246,6 +251,9 @@ body {
     font-size: 15px;
     border: 1px solid #ddd;
     /* border-radius: 10px; */
+}
+#medicine .dresult .dtable .no-results {
+
 }
 #medicine .dresult .dtable thead th, td {
     /* border: 1px solid #ddd; */
