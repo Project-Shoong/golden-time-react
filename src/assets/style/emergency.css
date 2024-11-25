@@ -188,9 +188,17 @@ body {
 
 #emergency {
     margin: 0 auto;
+    position: relative;
     display: flex;
     overflow: hidden;
     height: 100vh;
+}
+#emergency .map-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin-top: 70px;
+    z-index: 1;
 }
 #emergency .sidebar {
     float: left;
@@ -201,6 +209,7 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
     background-color: #f7f7f7;
+    z-index: 2;
 }
 #emergency .sidebar .search-boxes {
     margin: 15px 15px 13px;
@@ -318,11 +327,15 @@ body {
     overflow-y: auto;
     padding-bottom: 10px;
     position: relative;
+    background-color: #fff;
+    z-index: 2;
 }
 #emergency .simple-detail {
     height: calc(100vh - 110px);
     margin: 95px 10px 16px 22px;
     width: 200px;
+    background-color: #fff;
+    z-index: 2;
 }
 #emergency .situation-board .top-title {
     display: flex;

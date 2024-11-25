@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import '../../assets/styles/pharmacy.css';
+import '../../assets/style/pharmacy.css';
 import { images } from '../../utils/images';
 import Pagination from '../../components/Pagination';
 

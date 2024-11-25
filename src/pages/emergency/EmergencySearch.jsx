@@ -11,6 +11,7 @@ const EmergencySearch = ({onSearch}) => {
     const handleSearch = () => {
         if(!selectedSido || !region) {
             alert("지역을 선택해주세요.");
+            return;
         }
         onSearch({selectedSido, region, keyword: keyword || null});
     }
