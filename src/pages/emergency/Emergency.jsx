@@ -20,9 +20,11 @@ const SimpleDetail = ({selectedEmergency}) => {
 }
 
 const Emergency = ()=>{
+    // 지도역할
     const {Tmapv2} = window;
     const mapRef = useRef(null);
     const [markers, setMarkers] = useState([]);
+
     const [realResults, setRealResults] = useState([]);
     const [selectedMarker, setSelectedMarker] = useState(null);
     const [selectedEmergency, setSelectedEmergency] = useState(null);
@@ -36,7 +38,6 @@ const Emergency = ()=>{
     useEffect(() => {
         const mapDiv = document.getElementById("map_div");
         if(!mapDiv.firstChild) {
-            // Geolocation API로 현재 위치 가져오기
             if(navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -178,7 +179,7 @@ const Emergency = ()=>{
         setSelectedEmergency(null);
         setIsDetailOpen(false);
         setSelectedMarker(null);
-    }
+    };
 
     return (
         <div id="emergency" className="emergency-container">
