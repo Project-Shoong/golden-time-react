@@ -14,6 +14,10 @@ const Medicine = () => {
     const medicinesPerPage = 10;
     const totalPages = Math.ceil(filteredData.length / medicinesPerPage);
 
+    const startIndex = (currentPage -1) * medicinesPerPage;
+    const endIndex = startIndex + medicinesPerPage;
+    const currentData = filteredData.slice(startIndex, endIndex);
+
     const API_BASE_URL = "https://apis.data.go.kr/1471000";
 
     // 의약품 api
@@ -57,8 +61,6 @@ const Medicine = () => {
             setData(medicineData);
             setFilteredData(medicineData);
 
-            console.log("mediDatasms? ",medicineData);
-
         } catch (error) {
             console.error("api 요청 실패한 이유: ", error);
         }
@@ -82,7 +84,6 @@ const Medicine = () => {
 
     // 검색 버튼 클릭 시
     const handleSearch = () => {
-        // 검색어를 기반으로 데이터 필터링 
         if(query.trim() === "") {
             alert("검색어를 입력하세요!");
             return;
@@ -94,10 +95,6 @@ const Medicine = () => {
     const toggle = (index) => {
         setExpand(expand === index ? null : index);
     }
-
-    // useEffect(() => {
-    //     getMedicines();
-    // }, []);
 
     return (
         <div id="medicine" className="medicine-container" >
@@ -122,19 +119,18 @@ const Medicine = () => {
                         <button className="ddropdown-button">
                             <img src={images['dropdown17.png']} alt="열기" />
                         </button>
-                        {/* <button className="dsearch-button" onClick={()=> getMedicines(query)}> */}
                         <button className="dsearch-button" onClick={handleSearch}>
                             <img src={images['search20.png']} alt="검색" />
                         </button>
                     </div>
-                    <div className="dresult-items">
+                    {/* <div className="dresult-items">
                         {filteredData.map((item, index) => (
                             <div key={index} className="dresult-item">
                                 <img src={images['search16.png']} alt="관련검색어" />
                                 <span>{item.ITEM_NAME}</span>
                             </div>
                         ))}
-                    </div>
+                    </div> */}
                 </div>
             </div>
 
@@ -203,8 +199,8 @@ const Medicine = () => {
                         </tr>
                     </thead>
                     <tbody className="r15b">
-                        {filteredData.length > 0 ? (
-                            filteredData.map((item, index) => {
+                        {currentData.length > 0 ? (
+                            currentData.map((item, index) => {
                                 // ITEM_NAME 기준으로 분리
                                 const parts = item.ITEM_NAME.split(/\(|\)/);
                                 const name = parts[0] || "";
