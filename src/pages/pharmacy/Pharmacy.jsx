@@ -33,7 +33,7 @@ const Pharmacy = () => {
     };
 
 
-    
+
 
 
     const [selectedSido, setSelectedSido] = useState('all');
@@ -89,8 +89,8 @@ const Pharmacy = () => {
             const response = await axios.get(URL, {
                 params: {
                     serviceKey: process.env.REACT_APP_PHARMACY_APP_KEY,
-                    Q0: sido === 'all' ? '' : sido,  
-                    Q1: area === 'all' ? '' : area,  
+                    Q0: sido === 'all' ? '' : sido,
+                    Q1: area === 'all' ? '' : area,
                     numOfRows: 700,
                     pageNo: 1
                 }
@@ -137,17 +137,17 @@ const Pharmacy = () => {
 
     const createMarkers = (data) => {
         const pharmacies = data?.response?.body?.items?.item;
-        
-        if (pharmacies) { 
-            
+
+        if (pharmacies) {
+
             removeMarkers();
-    
+
             // pharmacies 배열을 순회하며 마커를 생성
             pharmacies.forEach((pharmacy) => {
                 const lat = pharmacy.wgs84Lat;
                 const lon = pharmacy.wgs84Lon;
                 const title = pharmacy.dutyName;
-    
+
                 if (lat && lon) {
                     const position = new Tmapv2.LatLng(lat, lon); // Tmapv3.LatLng으로 위치 설정
                     const marker = new Tmapv2.Marker({
@@ -156,32 +156,32 @@ const Pharmacy = () => {
                         // label: title // 마커 라벨로 약국 이름 설정
                     });
 
-                    marker.addListener("mouseenter", function(evt) {
+                    marker.addListener("mouseenter", function (evt) {
                         marker.setLabel(title);  // 마우스 오버 시 label을 표시
                     });
 
-                    marker.addListener("mouseleave", function(evt) {
+                    marker.addListener("mouseleave", function (evt) {
                         marker.setLabel('');  // 마우스 벗어날 때 label 숨기기
                     });
 
-                    marker.addListener("click", function(evt) {
+                    marker.addListener("click", function (evt) {
                         handleOpenDetail(pharmacy);  // pharmacy 객체를 전달하여 handleOpenDetail 호출
                         map.setCenter(position); // 마커 클릭시 center로 이동, 그러나 마커 클릭시에는 없에는게 좋을듯
                         map.setZoom(18);
-                        
+
                     });
-    
+
                     // 상태에 마커 추가
                     setMarkers(prevMarkers => [...prevMarkers, marker]);
-                    
+
                     map.setCenter(position); // 마커 생성시 center로 이동
                     map.setZoom(13);
-                    
+
                 }
             });
         }
     };
-    
+
     // 모든 마커를 제거하는 함수
     const removeMarkers = () => {
         markers.forEach(marker => {
@@ -246,13 +246,13 @@ const Pharmacy = () => {
         const lat = pharmacy.wgs84Lat;
         const lon = pharmacy.wgs84Lon;
         const position = new Tmapv2.LatLng(lat, lon);  // 마커의 위치
-    
+
         // 지도 중심을 해당 약국의 위치로 이동시키고 줌을 설정
         if (map) {
             map.setCenter(position);
             map.setZoom(18);  // 줌 레벨 설정
         }
-    
+
         // 약국 세부 정보 표시
         handleOpenDetail(pharmacy);
     };
@@ -267,10 +267,6 @@ const Pharmacy = () => {
 
     return (
         <>
-            <div id="header" className="short flex">
-                <Header></Header>
-            </div>
-
             <div id="yakgook">
                 <div class="flex top">
 
