@@ -27,6 +27,10 @@ const EmergencyList = ({results, onClick}) => {
         return text == "정보없음" ? {color: "gray"} : {};
     };
 
+    const cleanAddressName = (name) => {
+        return name.replace(/&#40;/g, "(").replace(/&#41;/g, ")");
+    };
+
     if(!results || results.length === 0) {
         return <div className="list">표시할 데이터가 없습니다.</div>;
     }
@@ -43,7 +47,7 @@ const EmergencyList = ({results, onClick}) => {
                             </div>
                             <div className="address-box acg9 r15b">
                                 <img src={images['main_icon_place.png']} alt="" />
-                                <div className="address">{item.dutyAddr || "주소 정보 없음"}</div>
+                                <div className="address">{cleanAddressName(item.dutyAddr) || "주소 정보 없음"}</div>
                             </div>
                             <div className="phone-box acg9 r15b">
                                 <img src={images['main_icon_tel.png']} alt="" />
