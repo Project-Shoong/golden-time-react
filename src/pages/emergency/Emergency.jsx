@@ -101,12 +101,14 @@ const Emergency = ()=>{
                 }),
             ]);
 
-            const realTime = response1.data?.response?.body?.items?.item || [];
-            const organList = response2.data?.response?.body?.items?.item || [];
+            const realTime = response1.data?.response?.body?.items?.item;
+            const organList = response2.data?.response?.body?.items?.item;
+
+            const realTimeArray = Array.isArray(realTime) ? realTime : realTime ? [realTime] : [];
 
             // 데이터 병합
             const realData = organList.map((organItem) => {
-                const realItem = realTime.find((real) => real.hpid === organItem.hpid);
+                const realItem = realTimeArray.find((real) => real.hpid === organItem.hpid);
                 return {...organItem, ...realItem};
             })
 
