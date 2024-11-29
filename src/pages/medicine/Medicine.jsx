@@ -22,18 +22,18 @@ const Medicine = () => {
     const API_BASE_URL = "https://apis.data.go.kr/1471000";
 
     // 의약품 api
-    const getMedicines = async () => {
+    const getMedicines = async (query) => {
 
         try {
             const [response1, response2] = await axios.all([
                 // 의약품 낱알식별 정보
                 axios.get(`${API_BASE_URL}/MdcinGrnIdntfcInfoService01/getMdcinGrnIdntfcInfoList01`, {
                     params: {
+                        item_name: query,
                         serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
                         pageNo: 1,
                         numOfRows: 50,
                         type: "json",
-                        item_name: query,
                     },
                 }),
                 // 의약품개요정보(e약은요)
@@ -61,6 +61,7 @@ const Medicine = () => {
 
             setData(medicineData);
             setFilteredData(medicineData);
+            console.log(filteredData);
 
         } catch (error) {
             console.error("api 요청 실패한 이유: ", error);
@@ -68,12 +69,12 @@ const Medicine = () => {
     };
 
     // 검색 버튼 클릭 시
-    const handleSearch = () => {
+    const handleSearch = (query) => {
         if(query.trim() === "") {
             alert("검색어를 입력하세요!");
             return;
         }
-        getMedicines();
+        getMedicines(query);
     };
 
     // 아코디언
@@ -86,12 +87,7 @@ const Medicine = () => {
 
             <div className="dsearch">
                 <h2>의약품 검색</h2>
-                <div className="dsearch-bar">
-                    <div className="input-container">
-                        <img className="search-logo" src={images['logo20.png']} alt="goldtime logo" />
-                        <MedicineHistory onSearch={handleSearch} />
-                    </div>
-                </div>
+                <MedicineHistory onSearch={handleSearch} />
             </div>
 
             <div className="ddetail-search">
