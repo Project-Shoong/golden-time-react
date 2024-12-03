@@ -1,21 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
-import '../../assets/style/emergency.css';
 import { images } from '../../utils/images';
 import EmergencySearch from './EmergencySearch';
 import EmergencyList from './EmergencyList';
 import EmergencyDetail from './EmergencyDetail';
 import axios from 'axios';
+import HospitalDetail from '../hospital/HospitalDetail';
 
 const Emergency = ()=>{
     const {Tmapv2} = window;
     const mapRef = useRef(null); //지도 객체 관리
     const markersRef = useRef([]); //마커 객체 배열 관리
+    const markerImage = images['marker_emergency.png'];
     const [realResults, setRealResults] = useState([]); //검색결과
     const [selectedEmergency, setSelectedEmergency] = useState(null);
     const [region, setRegion] = useState({sido:"", sigungu:""});
     const [searchKeyword, setSearchKeyword] = useState("");
-    const [isDetailOpen, setIsDetailOpen] = useState(false);
-    const markerImage = images['marker_emergency.png'];
+    const [isBoardDetailOpen, setIsBoardDetailOpen] = useState(false); //종합상황판 열림 여부
+    const [isDetailOpen, setIsDetailOpen] = useState(false); //병원 상세보기 열림 여부
+    const [selectedHospital, setSelectedHospital] = useState(null);
 
     const API_BASE_URL = "https://apis.data.go.kr/B552657/ErmctInfoInqireService";
 
@@ -159,15 +161,15 @@ const Emergency = ()=>{
     };
 
     // 종합상환판 열림
-    const handleOpenDetail = (emergency) => {
+    const handleOpenBoardDetail = (emergency) => {
         setSelectedEmergency(emergency);
-        setIsDetailOpen(true);
+        setIsBoardDetailOpen(true);
     };
 
     // 종합상환판 닫힘
-    const handleCloseDetail = () => {
+    const handleCloseBoardDetail = () => {
         setSelectedEmergency(null);
-        setIsDetailOpen(false);
+        setIsBoardDetailOpen(false);
     };
 
     // onSearch 핸들러 - 지역/키워드 업데이트
@@ -176,6 +178,70 @@ const Emergency = ()=>{
         setSearchKeyword(searchKeyword);
     };
 
+    // 병원에 관한 것
+    const getFormattedTime = (time) => {
+        if (!time) return null;
+        const timeStr = time.toString().padStart(4, '0');
+        return `${timeStr.slice(0, 2)}:${timeStr.slice(2)}`;
+    };
+    const checkOpenStatus = (hospital) => {
+        const today = new Date();
+        const currentDay = today.getDay() === 0 ? 7 : today.getDay();
+        const currentTime = `${today.getHours().toString().padStart(2, '0')}${today.getMinutes().toString().padStart(2, '0')}`; // 현재 시간 'HHmm' 포맷
+
+        const openTime = hospital[`dutyTime${currentDay}s`];
+        const closeTime = hospital[`dutyTime${currentDay}c`];
+
+        if (!openTime || !closeTime) {
+            return { status: "오늘 휴무", open: null, close: null };
+        }
+
+        const isOpen = currentTime >= openTime && currentTime <= closeTime;
+
+        return {
+            status: isOpen ? "진료중" : "진료 종료",
+            open: getFormattedTime(openTime),
+            close: getFormattedTime(closeTime),
+        };
+    }
+    const cleanHospitalName = (name) => {
+        // (사), (의), "사", "의", &#40;사&#41;, &#40;의&#41; 등을 제거
+        return name ? name.replace(/(\(사\)|\(의\)|"사"|"의"|&#40;사&#41;|&#40;의&#41;)/g, "").trim() : "";
+    };
+    const renameClassification = (dutyDivNam, dutyName) => {
+        if (dutyDivNam === '의원') {
+            const departmentMap = {
+                '안과': '안과',
+                '내과': '내과',
+                '이비인후과': '이비인후과',
+                '성형외과': '성형외과',
+                '정형외과': '정형외과',
+                '피부과': '피부과'
+            };
+            for (const [key, value] of Object.entries(departmentMap)) {
+                if (dutyName.includes(key)) {
+                    return value;
+                }
+            }
+            return '';
+        }
+        return dutyDivNam;
+    };
+    const handleEmergencyToHospital = () => {
+        if(selectedEmergency) {
+            setSelectedHospital(selectedEmergency); 
+            setIsDetailOpen(true);
+        }
+    }
+    const handleCloseDetail = () => {
+        setIsDetailOpen(false);
+        setSelectedHospital(null);
+    };
+    // 렌더링 확인 console
+    useEffect(() => {
+        console.log('selectedHospital:', selectedHospital);
+    }, [ selectedHospital]);
+
     return (
         <div id="emergency" className="emergency-container">
             <div id="map_div" className="map-background" ></div>
@@ -183,40 +249,55 @@ const Emergency = ()=>{
                 <EmergencySearch onSearch={handleSearch} />
                 <div className="total-count r15b">총 {realResults.length} 건</div>
                 <div className="scroll">
-                    <EmergencyList results={realResults} onClick={handleOpenDetail} />
+                    <EmergencyList results={realResults} onClick={handleOpenBoardDetail} />
                 </div>
             </div>
-            {isDetailOpen && (
-                <div className={selectedEmergency?.dutyEmclsName === "응급실운영신고기관" ? "simple-detail" : "situation-board scroll"}>
-                    {selectedEmergency ? ( 
-                        selectedEmergency.dutyEmclsName === "응급실운영신고기관" ? (
-                            <>
-                                <div className="non-title">
-                                    <h2 className="emergency-name b25mc">{selectedEmergency.dutyName}</h2>
-                                    <button className="close-button right-0" onClick={handleCloseDetail}>
-                                        <img src={images['close16.png']} alt="닫기" />
-                                    </button>
-                                </div>
-                                <div>현재 제공되는 종합상황판이 없습니다.</div>
-                                <div className="hospital-detail">
-                                    <button className="button absolute-button r17w">병원 상세보기</button>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <div className="top-title">
-                                    <div className="name r20b">응급실 종합상황판</div>
-                                    <button className="close-button" onClick={handleCloseDetail}>
-                                        <img src={images['close16.png']} alt="닫기" />
-                                    </button>
-                                </div>
-                                <EmergencyDetail selectedEmergency={selectedEmergency} region={region} />
-                            </>
-                        )
+
+            {/* 종합상황판 */}
+            {isBoardDetailOpen ? (
+                selectedEmergency ?.dutyEmclsName === "응급실운영신고기관" ? (
+                    <div className="simple-detail">
+                        <div className="non-title">
+                            <h2 className="emergency-name b25mc">{selectedEmergency.dutyName}</h2>
+                            <button className="close-button right-0" onClick={handleCloseBoardDetail}>
+                                <img src={images['close16.png']} alt="닫기" />
+                            </button>
+                        </div>
+                        <div>현재 제공되는 종합상황판이 없습니다.</div>
+                        <div className="hospital-detail">
+                            <button className="button absolute-button r17w"
+                                onClick={handleEmergencyToHospital}>병원 상세보기</button>
+                        </div>
+                    </div>
                     ) : (
-                        <div>선택된 응급실 정보가 없습니다.</div>
-                    )}
-                </div>
+                    <div className="situation-board scroll">
+                        <div className="top-title">
+                            <div className="name r20b">응급실 종합상황판</div>
+                            <button className="close-button" onClick={handleCloseBoardDetail}>
+                                <img src={images['close16.png']} alt="닫기" />
+                            </button>
+                        </div>
+                        <EmergencyDetail 
+                            selectedEmergency={selectedEmergency} 
+                            region={region}
+                            onHospitalDetail={handleEmergencyToHospital} />
+                    </div>
+                    )
+            ) : (
+                <div>선택된 응급실 정보가 없습니다.</div>
+            )}
+            
+            {/* 병원 상세정보 */}
+            {isDetailOpen && (
+                <HospitalDetail
+                    isDetailOpen={isDetailOpen}
+                    selectedHospital={selectedHospital}
+                    onClose={handleCloseDetail}
+                    getFormattedTime={getFormattedTime}
+                    checkOpenStatus={checkOpenStatus}
+                    cleanHospitalName={cleanHospitalName}
+                    renameClassification={renameClassification}
+                />
             )}
         </div>
     );

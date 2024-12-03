@@ -6,6 +6,7 @@ import { XMLParser } from "fast-xml-parser";
 import HospitalSearch from "./HospitalSearch";
 import HospitalDetail from "./HospitalDetail";
 import HospitalMap from "./HospitalMap.jsx";
+import Emergency from "../emergency/Emergency.jsx";
 
 
 const Hospital = ()=>{
@@ -27,8 +28,6 @@ const Hospital = ()=>{
     const emergencyRef = useRef([]);
     // 병원리스트에서 병원 분류명
     const classificationRef = useRef([]);
-
-
 
     // @@ 병원 리스트 불러오기(axios) @@
     useEffect(() => {
