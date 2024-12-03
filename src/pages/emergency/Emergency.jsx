@@ -191,7 +191,12 @@ const Emergency = ()=>{
                     {selectedEmergency ? ( 
                         selectedEmergency.dutyEmclsName === "응급실운영신고기관" ? (
                             <>
-                                <h2 className="emergency-name b25mc">{selectedEmergency.dutyName}</h2>
+                                <div className="non-title">
+                                    <h2 className="emergency-name b25mc">{selectedEmergency.dutyName}</h2>
+                                    <button className="close-button right-0" onClick={handleCloseDetail}>
+                                        <img src={images['close16.png']} alt="닫기" />
+                                    </button>
+                                </div>
                                 <div>현재 제공되는 종합상황판이 없습니다.</div>
                                 <div className="hospital-detail">
                                     <button className="button absolute-button r17w">병원 상세보기</button>

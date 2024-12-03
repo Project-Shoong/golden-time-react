@@ -241,9 +241,10 @@ body {
 
 /* 종합상황판이 없는 경우 */
 #emergency .simple-detail { height: calc(100vh - 700px); margin: 95px 22px 22px 22px; width: 300px; background-color: #fff; z-index: 2; padding: 20px;}
-#emergency .simple-detail .emergency-name { margin-bottom: 20px;}
-#emergency .simple-detail .hospital-detail { position: relative; width: 100%; height: 100px;}
-#emergency .simple-detail .hospital-detail .absolute-button { position: absolute; top: 80%; left: 50%; transform: translate(-50%, -50%)}
+#emergency .simple-detail .non-title { display: flex; justify-content: space-between; margin-bottom: 20px;}
+/* #emergency .simple-detail .emergency-name { margin-bottom: 20px;} */
+#emergency .simple-detail .hospital-detail { position: relative; width: 100%; height: 120px; display: flex;}
+#emergency .simple-detail .hospital-detail .absolute-button { position: absolute; top: 70%; left: 50%; transform: translate(-50%, -50%)}
 
 
 /* 라인잡기 */
