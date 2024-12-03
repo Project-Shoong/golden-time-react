@@ -9,6 +9,8 @@ body {
 /* 스크롤바 */
 #emergency .scroll {
     overflow: auto;
+    height: calc(100vh - 214px);
+    /* padding-right: 3px; */
 }
 #emergency .scroll::-webkit-scrollbar {
     width: 5px;
@@ -192,7 +194,7 @@ body {
 #emergency .map-background { position: absolute; width: 100%; height: 100vh; margin-top: 70px; margin-left: 400px; z-index: 1;}
 
 /* 왼쪽 사이드바 */
-#emergency .sidebar { float: left; width: 400px; height: 100vh; margin-top: 70px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); overflow-x: hidden; overflow-y: auto; background-color: #f7f7f7; z-index: 2;}
+#emergency .sidebar { float: left; width: 400px; height: 100vh; margin-top: 70px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); overflow: hidden; background-color: #f7f7f7; z-index: 2;}
 #emergency .sidebar .search-boxes { margin: 15px 15px 13px;} 
 #emergency .sidebar .search-boxes .select-boxs { display: flex; width: 370px; gap: 6px; margin-bottom: 10px;} 
 #emergency .sidebar .search-boxes .select-boxs select { width: 182px; height: 40px; border: 1px solid #154757; border-radius: 5px; padding: 11px 8px;} 
@@ -201,7 +203,7 @@ body {
 #emergency .sidebar .search-boxes .search-box .input::placeholder { font-family: 'Pretendard-Regular'; font-size: 15px; color: #ddd;}
 #emergency .sidebar .search-boxes .search-box .search-button { width: 40px; height: 40px; background-color: #154757; border: none; border-top-right-radius: 5px; border-bottom-right-radius: 5px; position: absolute; top: 0; right: 0;} 
 #emergency .sidebar .total-count { margin-left: 20px;}
-#emergency .sidebar .list { width: 360px; margin: 4px 20px 0 15px; padding: 10px; border-radius: 10px; margin-bottom: 10px; background-color: #fff; cursor: pointer;}
+#emergency .sidebar .list { width: 360px; margin: 4px 4px 0 15px; padding: 10px; border-radius: 10px; margin-bottom: 10px; background-color: #fff; cursor: pointer;}
 #emergency .sidebar .list .title { display: flex; gap: 7px; margin-bottom: 2px;}
 #emergency .sidebar .list .acg9 { display: flex; align-items: center; gap: 9px; margin: 8px 0;}
 #emergency .sidebar .list .acg9 img { width: 15px; height: 15px;}
@@ -215,8 +217,7 @@ body {
 #emergency .sidebar .list .s-table thead tr th:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
 
 /* 종합상황판 */
-#emergency .simple-detail { height: calc(100vh - 110px); margin: 95px 10px 16px 22px; width: 200px; background-color: #fff; z-index: 2;}
-#emergency .situation-board { width: 720px; height: calc(100vh - 110px); box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); padding: 14px 25px 20px 18px; margin: 95px 10px 16px 22px; overflow-x: hidden; overflow-y: auto; padding-bottom: 10px; position: relative; background-color: #fff; z-index: 2;}
+#emergency .situation-board { width: 720px; height: calc(100vh - 110px); box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); padding: 14px 25px 20px 18px; margin: 95px 22px 16px 22px; overflow-x: hidden; overflow-y: auto; padding-bottom: 10px; position: relative; background-color: #fff; z-index: 2;}
 #emergency .situation-board .top-title { display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #d9d9d9;}
 #emergency .situation-board .top-title .close-button { background-color: #fff; border: none; cursor: pointer;}
 #emergency .situation-board .top-title img { width: 16px; height: 16px;}
@@ -232,8 +233,18 @@ body {
 #emergency .situation-board .big-item .m-table td { width: 677px; text-align: left; padding-left: 10px; margin-bottom: 15px !important;}
 #emergency .situation-board .big-item .m-table td:first-child { width: 75%;}
 #emergency .situation-board .big-item .m-table td:nth-child(2) { width: 25%;}
-#emergency .situation-board .hospital-detail { display: flex; justify-content: center; position: absolute; width: 100%;}
-#emergency .situation-board .hospital-detail .button { width: 141px; height: 46px; border: none; border-radius: 25px; font-weight: normal; background-color: #FC7486; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); outline: none; cursor: pointer; position: fixed; bottom: 50px; z-index: 1000;}
+
+/* 병원 버튼 */
+#emergency .hospital-detail { display: flex; justify-content: center; position: relative; }
+#emergency .hospital-detail .button { width: 141px; height: 46px; border: none; border-radius: 25px; font-weight: normal; background-color: #FC7486; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); outline: none; cursor: pointer;}
+#emergency .hospital-detail .fixed-button { position: fixed; bottom: 50px; z-index: 100;}
+
+/* 종합상황판이 없는 경우 */
+#emergency .simple-detail { height: calc(100vh - 700px); margin: 95px 22px 22px 22px; width: 300px; background-color: #fff; z-index: 2; padding: 20px;}
+#emergency .simple-detail .emergency-name { margin-bottom: 20px;}
+#emergency .simple-detail .hospital-detail { position: relative; width: 100%; height: 100px;}
+#emergency .simple-detail .hospital-detail .absolute-button { position: absolute; top: 80%; left: 50%; transform: translate(-50%, -50%)}
+
 
 /* 라인잡기 */
 div {

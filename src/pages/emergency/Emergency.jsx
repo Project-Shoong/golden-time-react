@@ -179,10 +179,12 @@ const Emergency = ()=>{
     return (
         <div id="emergency" className="emergency-container">
             <div id="map_div" className="map-background" ></div>
-            <div className="sidebar scroll">
+            <div className="sidebar">
                 <EmergencySearch onSearch={handleSearch} />
                 <div className="total-count r15b">총 {realResults.length} 건</div>
-                <EmergencyList results={realResults} onClick={handleOpenDetail} />
+                <div className="scroll">
+                    <EmergencyList results={realResults} onClick={handleOpenDetail} />
+                </div>
             </div>
             {isDetailOpen && (
                 <div className={selectedEmergency?.dutyEmclsName === "응급실운영신고기관" ? "simple-detail" : "situation-board scroll"}>
@@ -190,9 +192,9 @@ const Emergency = ()=>{
                         selectedEmergency.dutyEmclsName === "응급실운영신고기관" ? (
                             <>
                                 <h2 className="emergency-name b25mc">{selectedEmergency.dutyName}</h2>
+                                <div>현재 제공되는 종합상황판이 없습니다.</div>
                                 <div className="hospital-detail">
-                                    <div>종합상황판이 없어요.</div>
-                                    <button className="button r17w">병원 상세보기</button>
+                                    <button className="button absolute-button r17w">병원 상세보기</button>
                                 </div>
                             </>
                         ) : (
@@ -203,9 +205,7 @@ const Emergency = ()=>{
                                         <img src={images['close16.png']} alt="닫기" />
                                     </button>
                                 </div>
-                                <EmergencyDetail 
-                                    selectedEmergency={selectedEmergency} 
-                                    region={region} />
+                                <EmergencyDetail selectedEmergency={selectedEmergency} region={region} />
                             </>
                         )
                     ) : (

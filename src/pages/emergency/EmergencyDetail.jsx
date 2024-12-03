@@ -481,7 +481,7 @@ const EmergencyDetail = ({selectedEmergency, selectedSido, region}) => {
                 </div>
             </div>
             <div className="hospital-detail">
-                <button className="button r17w">병원 상세보기</button>
+                <button className="button fixed-button r17w">병원 상세보기</button>
             </div>
         </div>
     )
