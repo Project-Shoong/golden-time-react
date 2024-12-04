@@ -178,6 +178,10 @@ const Emergency = ()=>{
     const handleSearch = ({region, keyword: searchKeyword }) => {
         setRegion(region);
         setSearchKeyword(searchKeyword);
+        setSelectedEmergency(null);
+        setIsBoardDetailOpen(false);
+        setSelectedHospital(null); 
+        setIsDetailOpen(false);
     };
 
     // 병원에 관한 것
