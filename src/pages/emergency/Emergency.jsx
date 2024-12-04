@@ -21,6 +21,7 @@ const Emergency = ()=>{
 
     const API_BASE_URL = "https://apis.data.go.kr/B552657/ErmctInfoInqireService";
 
+
     // 지도 초기화, 현재 위치
     useEffect(() => {
         const mapDiv = document.getElementById("map_div");
@@ -83,7 +84,6 @@ const Emergency = ()=>{
             
             const realTimeArray = Array.isArray(realTime) ? realTime : realTime ? [realTime] : [];
             const organListArray = Array.isArray(organList) ? organList : organList ? [organList] : [];
-            console.log("hpid ", realTime.hpid);
 
             // 데이터 병합
             const realData = organListArray.map((organItem) => {
@@ -164,6 +164,8 @@ const Emergency = ()=>{
     const handleOpenBoardDetail = (emergency) => {
         setSelectedEmergency(emergency);
         setIsBoardDetailOpen(true);
+        setSelectedHospital(null); 
+        setIsDetailOpen(false);
     };
 
     // 종합상환판 닫힘
@@ -227,20 +229,23 @@ const Emergency = ()=>{
         }
         return dutyDivNam;
     };
-    const handleEmergencyToHospital = (realTime) => {
-        if(selectedEmergency) {
-            fetchHospitalDetail(realTime);
-            setIsDetailOpen(true);
-        }
+    const handleEmergencyToHospital = () => {
+        fetchHospitalDetail(selectedEmergency);
     }
     const handleCloseDetail = () => {
         setIsDetailOpen(false);
         setSelectedHospital(null);
     };
-    const fetchHospitalDetail = async (realTime) => {
+    const fetchHospitalDetail = async (selectedEmergency) => {
+        // 이미 로드된 병원인지 확인
+        if (selectedHospital?.hpid === selectedEmergency.hpid) {
+            setIsDetailOpen(true); 
+            return;
+        }
+
         const apiUrl = "https://apis.data.go.kr/B552657/HsptlAsembySearchService/getHsptlBassInfoInqire";
         const apiKey = process.env.REACT_APP_DATA_SERVICE_KEY;
-        const hpid = realTime.hpid;
+        const hpid = selectedEmergency.hpid;
 
         try {
             const response = await axios.get(
@@ -248,18 +253,19 @@ const Emergency = ()=>{
             );
 
             const result = response?.data?.response?.body?.items?.item || null;
-            setSelectedHospital(...result);
-            console.log(selectedHospital);
 
-            console.log("병원아이디 : ", `${apiUrl}?serviceKey=${apiKey}&HPID=${hpid}`);
+            if (!result) {
+                console.error("API에서 병원 데이터를 가져오지 못했습니다.");
+                return;
+            }
+
+            setSelectedHospital(Array.isArray(result) ? result[0] : result); 
+            setIsDetailOpen(true);
+            
         } catch (error) {
             console.error("api 요청 실패한 이유: ", error);
         }
     };
-    // 렌더링 확인 console
-    useEffect(() => {
-        console.log('selectedHospital:', selectedHospital);
-    }, [ selectedHospital]);
 
     return (
         <div id="emergency" className="emergency-container">
@@ -307,7 +313,7 @@ const Emergency = ()=>{
             )}
             
             {/* 병원 상세정보 */}
-            {isDetailOpen && (
+            {isDetailOpen && selectedHospital && (
                 <HospitalDetail
                     isDetailOpen={isDetailOpen}
                     selectedHospital={selectedHospital}
