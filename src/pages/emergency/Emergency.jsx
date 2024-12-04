@@ -78,12 +78,12 @@ const Emergency = ()=>{
                     },
                 }),
             ]);
-
             const realTime = response1.data?.response?.body?.items?.item;
             const organList = response2.data?.response?.body?.items?.item;
-
+            
             const realTimeArray = Array.isArray(realTime) ? realTime : realTime ? [realTime] : [];
             const organListArray = Array.isArray(organList) ? organList : organList ? [organList] : [];
+            console.log("hpid ", realTime.hpid);
 
             // 데이터 병합
             const realData = organListArray.map((organItem) => {
@@ -227,15 +227,34 @@ const Emergency = ()=>{
         }
         return dutyDivNam;
     };
-    const handleEmergencyToHospital = () => {
+    const handleEmergencyToHospital = (realTime) => {
         if(selectedEmergency) {
-            setSelectedHospital(selectedEmergency); 
+            fetchHospitalDetail(realTime);
             setIsDetailOpen(true);
         }
     }
     const handleCloseDetail = () => {
         setIsDetailOpen(false);
         setSelectedHospital(null);
+    };
+    const fetchHospitalDetail = async (realTime) => {
+        const apiUrl = "https://apis.data.go.kr/B552657/HsptlAsembySearchService/getHsptlBassInfoInqire";
+        const apiKey = process.env.REACT_APP_DATA_SERVICE_KEY;
+        const hpid = realTime.hpid;
+
+        try {
+            const response = await axios.get(
+                `${apiUrl}?serviceKey=${apiKey}&HPID=${hpid}`
+            );
+
+            const result = response?.data?.response?.body?.items?.item || null;
+            setSelectedHospital(...result);
+            console.log(selectedHospital);
+
+            console.log("병원아이디 : ", `${apiUrl}?serviceKey=${apiKey}&HPID=${hpid}`);
+        } catch (error) {
+            console.error("api 요청 실패한 이유: ", error);
+        }
     };
     // 렌더링 확인 console
     useEffect(() => {
