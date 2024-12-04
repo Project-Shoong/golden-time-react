@@ -434,6 +434,12 @@ const Pharmacy = () => {
     //검색 기능
     const [keyword, setKeyword] = useState('');
 
+    //길찾기 업데이트
+    const handleRP = () => {
+        getRP(selectedPharm);
+        
+    } 
+
     //길찾기
     const getRP = (pharmacy) => {
         // 약국의 위치 가져오기
@@ -677,7 +683,8 @@ const Pharmacy = () => {
 
                                         </table>
                                     </div>
-                                    <div className="find" onClick={() => getRP(selectedPharm)}>
+                                    <div className="find" onClick={handleRP}>
+                                    {/* <div className="find" onClick={() => getRP(selectedPharm)}> */}
                                         <p>길찾기</p>
                                     </div>
                                     <div className="detail-tab flex">
