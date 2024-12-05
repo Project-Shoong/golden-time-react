@@ -5,6 +5,7 @@ import EmergencyList from './EmergencyList';
 import EmergencyDetail from './EmergencyDetail';
 import axios from 'axios';
 import HospitalDetail from '../hospital/HospitalDetail';
+import FindRoute from '../../components/FindRoute';
 
 const Emergency = ()=>{
     const {Tmapv2} = window;
@@ -99,7 +100,7 @@ const Emergency = ()=>{
 
             setRealResults(filteredData); //결과 업데이트
             createMarkers(filteredData); //마커 생성
-
+            console.log("filteredData: ", filteredData);
         } catch (error) {
             console.error("api 요청 실패한 이유: ", error);
         }
@@ -113,7 +114,7 @@ const Emergency = ()=>{
                 zoom: 15,
             });
         }
-    }
+    };
     
     // 지도 범위 및 줌 설정
     const adjustMapToMarkers = (positions) => {
@@ -133,7 +134,7 @@ const Emergency = ()=>{
         );
 
         mapRef.current.fitBounds(bounds);
-    }
+    };
 
     // 마커
     const createMarkers = (filteredData) => {
@@ -159,6 +160,37 @@ const Emergency = ()=>{
 
         adjustMapToMarkers(positions);
     };
+
+
+
+
+
+    // 종합상황판에 길찾기 버튼을 만든다. OK
+    // 길찾기 버튼을 누르면 종합상황판이 닫히면서 길찾기 실행
+    // 종합상황판은 조그마한 창으로 바꾸기
+
+    const handleEmergencyClick = (filteredData) => {
+        // 응급실의 위치 추출
+        const lat = filteredData.wgs84Lat;
+        const lon = filteredData.wgs84Lon;
+        const position = new Tmapv2.LatLng(lat, lon);
+        const marker = new Tmapv2.Marker({
+            position: position,
+            map: mapRef.current,
+            icon: markerImage,
+            label: filteredData.dutyName 
+        });
+
+        marker.addListener("click", function(evt) {
+            mapRef.current.setCenter(position);
+            mapRef.current.setZoom(10);
+        });
+        marker.push(marker);
+    }
+
+
+
+    
 
     // 종합상환판 열림
     const handleOpenBoardDetail = (emergency) => {
@@ -235,7 +267,7 @@ const Emergency = ()=>{
     };
     const handleEmergencyToHospital = () => {
         fetchHospitalDetail(selectedEmergency);
-    }
+    };
     const handleCloseDetail = () => {
         setIsDetailOpen(false);
         setSelectedHospital(null);
@@ -278,7 +310,9 @@ const Emergency = ()=>{
                 <EmergencySearch onSearch={handleSearch} />
                 <div className="total-count r15b">총 {realResults.length} 건</div>
                 <div className="scroll">
-                    <EmergencyList results={realResults} onClick={handleOpenBoardDetail} />
+                    <EmergencyList 
+                        results={realResults} 
+                        onClick={handleOpenBoardDetail} />
                 </div>
             </div>
 
@@ -295,7 +329,18 @@ const Emergency = ()=>{
                         <div>현재 제공되는 종합상황판이 없습니다.</div>
                         <div className="hospital-detail">
                             <button className="button absolute-button r17w"
-                                onClick={handleEmergencyToHospital}>병원 상세보기</button>
+                                onClick={handleEmergencyToHospital}>병원 상세보기
+                            </button>
+                            {/* <FindRoute 
+                                startLocation={startLocation}
+                                destination={destination}
+                                map={map}
+                                markerImage={markerImage}
+                            >
+                                <div style={{ color: "red", cursor: "pointer" }}>
+                                    <span>응급실 경로</span>
+                                </div>
+                            </FindRoute> */}
                         </div>
                     </div>
                     ) : (

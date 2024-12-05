@@ -14,6 +14,7 @@ import Login from './pages/member/Login';
 import MyPage from './pages/member/mypage/MyPage';
 import Header from './layout/Header';
 import Footer from './layout/Footer';
+import Pharmacy2 from './pages/pharmacy/Pharmacy2';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/hospital" element={<Hospital />} />
         <Route path="/check-up" element={<CheckUp />} />
         <Route path="/pharmacy" element={<Pharmacy />} />
+        <Route path="/pharmacy2" element={<Pharmacy2 />} />
         <Route path="/medicine" element={<Medicine />} />
         <Route path="/first-aid/faq" element={<Faq />} />
         <Route path="/first-aid/solution" element={<Solution />} />

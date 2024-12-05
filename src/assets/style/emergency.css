@@ -221,7 +221,11 @@ body {
 #emergency .situation-board .top-title { display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #d9d9d9;}
 #emergency .situation-board .top-title .close-button { background-color: #fff; border: none; cursor: pointer;}
 #emergency .situation-board .top-title img { width: 16px; height: 16px;}
-#emergency .situation-board .emergency-name { margin: 16px 0 20px;}
+
+#emergency .situation-board .emergency-title { display: flex; align-items: center; justify-content: space-between; margin: 16px 0 20px;}
+#emergency .situation-board .emergency-title .emergency-name { }
+#emergency .situation-board .emergency-title .find { width: 75px; height: 30px; border: 1px solid #154757; border-radius: 20px; display: flex;align-items: center; justify-content: center; cursor: pointer;}
+#emergency .situation-board .emergency-title .find:hover { color: white; transition: background-color 0.5s ease; background-color: #154757;}
 #emergency .situation-board .big-item { margin-bottom: 25px; width: 677px; }
 #emergency .situation-board .big-item .title,
 #emergency .situation-board .big-item .sub-title { margin-bottom: 6px;}
