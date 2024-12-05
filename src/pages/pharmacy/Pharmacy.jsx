@@ -77,7 +77,6 @@ const Pharmacy = () => {
 
     const [pharm, setpharm] = useState(null);
 
-
     // 검색버튼 클릭시 선택된 시/도와 시/군/구 값으로 API 호출
     const handleSearch = () => {
 
@@ -235,7 +234,6 @@ const Pharmacy = () => {
         const appKey = process.env.REACT_APP_TMAP_APP_KEY;
         const version = "1";
         const url = `https://apis.openapi.sk.com/tmap/geo/reversegeocoding?version=${version}&lat=${latitude}&lon=${longitude}&appKey=${appKey}`;
-
         try {
             const response = await fetch(url, {
                 method: 'GET',
@@ -384,7 +382,6 @@ const Pharmacy = () => {
             }
         }
     };
-
 
     const removeMarkers = () => {
         markers.forEach(marker => {
@@ -604,13 +601,11 @@ const Pharmacy = () => {
                     label: selectedPharm.dutyName // 약국 마커 아이콘 설정
                 });
 
-
                 marker.addListener("click", function (evt) {
                     handleOpenDetail(selectedPharm);
                     map.setCenter(position);
                     map.setZoom(18);
                 });
-
                 // 마커 상태 업데이트
                 setMarkers([marker]);
                 map.setCenter(position);

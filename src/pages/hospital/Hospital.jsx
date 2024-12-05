@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { images } from '../../utils/images';
-import * as regions from '../../constants/regions';
+// import * as regions from '../../constants/regions';
 import axios from 'axios';
-import { XMLParser } from "fast-xml-parser";
+// import { XMLParser } from "fast-xml-parser";
 import HospitalSearch from "./HospitalSearch";
 import HospitalDetail from "./HospitalDetail";
 import HospitalMap from "./HospitalMap.jsx";
+import Emergency from "../emergency/Emergency.jsx";
 
 
 const Hospital = ()=>{
@@ -22,11 +23,17 @@ const Hospital = ()=>{
     // 병원 상세정보
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [selectedHospital, setSelectedHospital] = useState("병원 미선택");
+    // 병원 즐겨찾기
+    const [favorites, setFavorites] = useState(
+        hospitalData.map(() => false)
+    );
     
     // 병원리스트에서 응급실정보
-    const emergencyRef = useRef([]);
+    const emergencyRef = useRef([]); 
     // 병원리스트에서 병원 분류명
     const classificationRef = useRef([]);
+    // 리스트 스크롤 초기화
+    const ulRef = useRef(null);
 
 
 
@@ -42,9 +49,17 @@ const Hospital = ()=>{
             const numOfRows = 10;
  
             try {
+                let newSido = sido;
+                let newSigungu = sigungu;
+
+                if(sigungu.split(" ").length >= 2){
+                    newSido = sigungu.split(" ")[0];
+                    newSigungu = sigungu.split(" ")[1];
+                }
+
                 // axios를 사용하여 데이터 호출
                 const response = await axios.get(
-                    `${apiUrl}?serviceKey=${apiKey}&Q0=${sido === "all" ? "" : sido}&Q1=${sigungu === "all" ? "" : sigungu}&QN=${QN}&pageNo=${pageNo}&numOfRows=${numOfRows}`
+                    `${apiUrl}?serviceKey=${apiKey}&Q0=${newSido === "all" ? "" : newSido}&Q1=${newSigungu === "all" ? "" : newSigungu}&QN=${QN}&pageNo=${pageNo}&numOfRows=${numOfRows}`
                 );
                 
                 // 파싱된 데이터에서 병원 목록 추출
@@ -76,12 +91,49 @@ const Hospital = ()=>{
     // 검색 조건 업데이트 함수
     const handleRegionChange = (newRegion) => {
         setRegion(newRegion);
+        resetScroll();
     };
 
     // 검색 키워드 업데이트
     const handleSearch = (keyword) => {
         setSearchKeyword(keyword); 
+        resetScroll();
     };
+
+    // 스크롤 높이값 초기화
+    const resetScroll = () => {
+        if (ulRef.current) {
+            ulRef.current.scrollTop = 0;
+        }
+    };
+
+    // 즐겨찾기
+    // const favoriteStar = async (index, hospitalId, classification) => {
+    //     const isFavorited = favorites[index];
+
+    //     try {
+    //         if (!isFavorited) {
+    //           // 즐겨찾기 추가
+    //           await axios.post('/api/hospital/like', {
+    //             member_id: memberId,
+    //             duty_id: hospitalId,
+    //             classification: "hospital",
+    //           });
+    //         } else {
+    //           // 즐겨찾기 삭제
+    //           await axios.delete(`/api/hospital/like`, {
+    //             data: { member_id: memberId, duty_id: hospitalId },
+    //           });
+    //         }
+      
+    //         // 즐겨찾기 상태 업데이트
+    //         setFavorites((prev) =>
+    //           prev.map((fav, i) => (i === index ? !fav : fav))
+    //         );
+    //     } catch (error) {
+    //         console.error('즐겨찾기 요청 중 오류 발생:', error);
+    //     }
+    // }
 
 
     // @@ 병원 상세정보 open/close @@
@@ -175,7 +227,11 @@ const Hospital = ()=>{
 
 
     if (loading || !hospitalData) {
-        return <p>데이터를 불러오는 중입니다...</p>;
+        return (
+            <div id="hospital">
+                <p className="get-data">데이터를 불러오는 중입니다...</p>
+            </div>
+        )
     }
     if (error) {
         return <p>데이터를 불러오는 데 실패했습니다: {error.message}</p>;
@@ -204,7 +260,7 @@ const Hospital = ()=>{
                                     <li><a href="#">방문자순</a></li>
                                 </ul>
                             </div>
-                            <ul className="scroll">
+                            <ul className="scroll" ref={ulRef}>
                                 {/* 병원 리스트 렌더링 */}
                                 {hospitalData.length > 0 ? (
                                     hospitalData.map((hospital, index) => {
