@@ -164,6 +164,7 @@ const Emergency = ()=>{
     const handleMarkerClick = (emergency) => {
         removeMarkers();
         removeRouteLayer();
+        setIsBoardDetailVisible(true);
 
         const marker = new Tmapv2.Marker({
             position: new Tmapv2.LatLng(emergency.wgs84Lat, emergency.wgs84Lon),
