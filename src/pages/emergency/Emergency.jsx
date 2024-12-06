@@ -9,9 +9,12 @@ import FindRoute from '../../components/FindRoute';
 
 const Emergency = ()=>{
     const {Tmapv2} = window;
-    const mapRef = useRef(null); //지도 객체 관리
-    const markersRef = useRef([]); //마커 객체 배열 관리
     const markerImage = images['marker_emergency.png'];
+
+    const [map, setMap] = useState(null);
+    const [markers, setMarkers] = useState([]);
+    const [routeLayer, setRouteLayer] = useState(null);
+    const [currentPosition, setCurrentPosition] = useState(null);
     const [realResults, setRealResults] = useState([]); //검색결과
     const [selectedEmergency, setSelectedEmergency] = useState(null);
     const [region, setRegion] = useState({sido:"", sigungu:""});
@@ -19,6 +22,7 @@ const Emergency = ()=>{
     const [isBoardDetailOpen, setIsBoardDetailOpen] = useState(false); //종합상황판 열림 여부
     const [isDetailOpen, setIsDetailOpen] = useState(false); //병원 상세보기 열림 여부
     const [selectedHospital, setSelectedHospital] = useState(null);
+    const [isBoardDetailVisible, setIsBoardDetailVisible] = useState(true); // 초기값: 보이도록 설정
 
     const API_BASE_URL = "https://apis.data.go.kr/B552657/ErmctInfoInqireService";
 
@@ -30,6 +34,7 @@ const Emergency = ()=>{
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
+                    setCurrentPosition({ latitude, longitude });
                     initializeMap(latitude, longitude);
                 },
                 () => {
@@ -40,17 +45,19 @@ const Emergency = ()=>{
         }
     }, []);
 
-    // 지역, 키워드 업데이트
+    // 지역 업데이트
     useEffect(() => {
-        if (region.sigungu || searchKeyword) {
+        if (region.sigungu) {
             getSearchResults();
         }
-    }, [region.sigungu, searchKeyword]);
+    }, [region.sigungu]);
 
-    // 마커 업데이트
+    // 응급실 리스트 업데이트
     useEffect(() => {
+        removeMarkers();
+        removeRouteLayer();
         if (realResults.length > 0) {
-            createMarkers(realResults); 
+            updateMarkers(realResults); 
         }
     }, [realResults]);
 
@@ -99,101 +106,23 @@ const Emergency = ()=>{
                 : realData;
 
             setRealResults(filteredData); //결과 업데이트
-            createMarkers(filteredData); //마커 생성
+            updateMarkers(filteredData); //마커 생성
             console.log("filteredData: ", filteredData);
         } catch (error) {
             console.error("api 요청 실패한 이유: ", error);
         }
     };
     
-    // 지도
+    // 지도 초기화 함수
     const initializeMap = (lat, lon) => {
-        if(!mapRef.current && Tmapv2) {
-            mapRef.current = new Tmapv2.Map("map_div", {
+        if(!map && Tmapv2) {
+            const newMap = new Tmapv2.Map("map_div", {
                 center: new Tmapv2.LatLng(lat, lon),
                 zoom: 15,
             });
+            setMap(newMap);
         }
     };
-    
-    // 지도 범위 및 줌 설정
-    const adjustMapToMarkers = (positions) => {
-        if (positions.length === 0 || !mapRef.current) return;
-
-        const latitudes = positions.map((pos) => parseFloat(pos.latitude));
-        const longitudes = positions.map((pos) => parseFloat(pos.longitude));
-
-        const minLat = Math.min(...latitudes);
-        const maxLat = Math.max(...latitudes);
-        const minLon = Math.min(...longitudes);
-        const maxLon = Math.max(...longitudes);
-
-        const bounds = new Tmapv2.LatLngBounds(
-            new Tmapv2.LatLng(minLat, minLon), // 남서쪽
-            new Tmapv2.LatLng(maxLat, maxLon)  // 북동쪽
-        );
-
-        mapRef.current.fitBounds(bounds);
-    };
-
-    // 마커
-    const createMarkers = (filteredData) => {
-        if(!mapRef.current) return;
-
-        // 기존 마커 제거
-        markersRef.current.forEach((marker) => marker.setMap(null));
-        markersRef.current = [];
-
-        // 새 마커 추가
-        const positions = [];
-        const newMarkers = filteredData.map((emergency) => {
-            const {wgs84Lat: latitude, wgs84Lon: longitude} = emergency;
-            const marker = new Tmapv2.Marker({
-                position: new Tmapv2.LatLng(latitude, longitude),
-                map: mapRef.current,
-                icon: markerImage,
-            });
-            positions.push({latitude, longitude});
-            return marker;
-        });
-        markersRef.current = newMarkers;
-
-        adjustMapToMarkers(positions);
-    };
-
-
-
-
-
-    // 종합상황판에 길찾기 버튼을 만든다. OK
-    // 길찾기 버튼을 누르면 종합상황판이 닫히면서 길찾기 실행
-    // 종합상황판은 조그마한 창으로 바꾸기
-
-    const handleEmergencyClick = (filteredData) => {
-        // 응급실의 위치 추출
-        const lat = filteredData.wgs84Lat;
-        const lon = filteredData.wgs84Lon;
-        const position = new Tmapv2.LatLng(lat, lon);
-        const marker = new Tmapv2.Marker({
-            position: position,
-            map: mapRef.current,
-            icon: markerImage,
-            label: filteredData.dutyName 
-        });
-
-        marker.addListener("click", function(evt) {
-            mapRef.current.setCenter(position);
-            mapRef.current.setZoom(10);
-        });
-        marker.push(marker);
-    }
-
-    const handleFindRoute = () => {
-
-    }
-
-    const [markers, setMarkers] = useState([]);
-    const [routeLayer, setRouteLayer] = useState(null);
 
     // 마커 제거
     const removeMarkers = () => {
@@ -201,9 +130,6 @@ const Emergency = ()=>{
             marker.setMap(null);
         });
         setMarkers([]); 
-         // 기존 마커 제거
-         markersRef.current.forEach((marker) => marker.setMap(null));
-         markersRef.current = [];
     };
 
     // 경로 제거
@@ -214,42 +140,97 @@ const Emergency = ()=>{
         }
     };
 
+    // 마커
+    const updateMarkers = (filteredData) => {
+        if(map) {
+            // 기존 마커 제거
+            removeMarkers();
+
+            // 새 마커 추가
+            const newMarkers = filteredData.map((emergency) => {
+                const marker = new Tmapv2.Marker({
+                    position: new Tmapv2.LatLng(emergency.wgs84Lat, emergency.wgs84Lon),
+                    map,
+                    icon: markerImage,
+                });
+                marker.addListener("click", () => handleMarkerClick(emergency));
+                return marker;
+            });
+            setMarkers(newMarkers);
+        }
+    };
+
+    // 응급실 클릭 이벤트 핸들러
+    const handleMarkerClick = (emergency) => {
+        removeMarkers();
+        removeRouteLayer();
+
+        const marker = new Tmapv2.Marker({
+            position: new Tmapv2.LatLng(emergency.wgs84Lat, emergency.wgs84Lon),
+            map,
+            icon: markerImage,
+            label: emergency.dutyName,
+        });
+
+        if(map) {
+            map.setCenter(new Tmapv2.LatLng(emergency.wgs84Lat, emergency.wgs84Lon));
+            map.setZoom(15);
+        }
+
+        setMarkers([marker]);
+        setSelectedEmergency(emergency);
+    };
+
+
     //길찾기 API
     const getRP = async () => {
-        if(startLocation && destination) {
-            const requestData = {
-                startX: startLocation.longitude,
-                startY: startLocation.latitude, 
-                endX: destination.wgs84Lon, 
-                endY: destination.wgs84Lat,
-                reqCoorType: "WGS84GEO", //내 요청에 제공하는 좌표형식
-                resCoordType: "EPSG3857",  //api가 응답으로 반환하는 좌표형식
-                searchOption: '0',
-                trafficInfo: "Y",
+        if(!currentPosition && !selectedEmergency) return;
+
+        const requestData = {
+            startX: currentPosition.longitude,
+            startY: currentPosition.latitude, 
+            endX: selectedEmergency.wgs84Lon, 
+            endY: selectedEmergency.wgs84Lat,
+            reqCoorType: "WGS84GEO", //내 요청에 제공하는 좌표형식
+            resCoordType: "EPSG3857",  //api가 응답으로 반환하는 좌표형식
+            searchOption: '0',
+            trafficInfo: "Y",
+        };
+    
+        const headers = {
+            appKey: process.env.REACT_APP_TMAP_APP_KEY
+        }
+    
+        try {
+            const response = await axios.post ("https://apis.openapi.sk.com/tmap/routes?version=1&format=json&callback=result", 
+                requestData,
+                { headers: headers }
+            ); 
+
+            // 결과 데이터 처리
+            const resultData = response.data.features;
+
+            // 경로 표시
+            drawRoute(resultData);
+
+            // 현재 위치에 마커 추가
+            const currentMarker = new Tmapv2.Marker({
+                position: new Tmapv2.LatLng(
+                    currentPosition.latitude,
+                    currentPosition.longitude
+                ),
+                map,
+                icon: markerImage,
+                label: "현재 위치",
+            });
+
+            if(map) {
+                map.setCenter(new Tmapv2.LatLng(currentPosition.latitude, currentPosition.longitude));
+                map.setZoom(15);
             };
-        
-            const headers = {
-                appKey: process.env.REACT_APP_TMAP_APP_KEY
-            }
-        
-            try {
-                const response = await axios.post ("https://apis.openapi.sk.com/tmap/routes?version=1&format=json&callback=result", 
-                    requestData,
-                    { headers: headers }
-                ); 
-
-                // 결과 데이터 처리
-                const resultData = response.data.features;
-
-                // 경로 표시
-                drawRoute(resultData);
-                
-            } catch (error) {
-                console.log("경로 요청 실패: ", error);
-            }
-
-        } else {
-            console.error("현재 위치 정보를 가져올 수 없습니다.");
+            
+        } catch (error) {
+            console.log("경로 요청 실패: ", error);
         }
     };
 
@@ -288,13 +269,13 @@ const Emergency = ()=>{
         }
 
         // 도착 마커
-        if(selectedPharm) {
-            const endPoint = new Tmapv2.LatLng(destination.wgs84Lat, destination.wgs84Lon);
+        if(selectedEmergency) {
+            const endPoint = new Tmapv2.LatLng(selectedEmergency.wgs84Lat, selectedEmergency.wgs84Lon);
             const endMarker = new Tmapv2.Marker({
                 position: endPoint,
                 map: map,
                 icon: markerImage,
-                label: destination.dutyName,
+                label: selectedEmergency.dutyName,
             });
 
             setMarkers((prevMarkers) => [...prevMarkers, endMarker]);
@@ -302,10 +283,11 @@ const Emergency = ()=>{
     };
 
     // 길찾기 실행
-    const handleRP = () => {
+    const handleFindRoute = () => {
         removeMarkers(); //마커 삭제
         removeRouteLayer(); //경로 삭제
-        getRP(selectedPharm); 
+        getRP(selectedEmergency); 
+        setIsBoardDetailVisible(false); // EmergencyDetail 숨기기
     };
 
 
@@ -422,6 +404,11 @@ const Emergency = ()=>{
         }
     };
 
+    const handleEmergencyList = (emergency) => {
+        handleOpenBoardDetail(emergency) //상황종합판 열림
+        handleMarkerClick(emergency)  //마커 클릭 처리
+    }
+
     return (
         <div id="emergency" className="emergency-container">
             <div id="map_div" className="map-background" ></div>
@@ -431,7 +418,8 @@ const Emergency = ()=>{
                 <div className="scroll">
                     <EmergencyList 
                         results={realResults} 
-                        onClick={handleOpenBoardDetail} />
+                        onClick={handleEmergencyList}
+                    />
                 </div>
             </div>
 
@@ -440,42 +428,41 @@ const Emergency = ()=>{
                 selectedEmergency ?.dutyEmclsName === "응급실운영신고기관" ? (
                     <div className="simple-detail">
                         <div className="non-title">
-                            <h2 className="emergency-name b25mc">{selectedEmergency.dutyName}</h2>
+                            <div className="name r20b">응급실운영신고기관</div>
                             <button className="close-button right-0" onClick={handleCloseBoardDetail}>
                                 <img src={images['close16.png']} alt="닫기" />
                             </button>
+                        </div>
+                        <div className="name-title">
+                            <h2 className="emergency-name b25mc">{selectedEmergency.dutyName}</h2>
+                            <div className="find r17mc" onClick={handleFindRoute}>
+                                <p>길찾기</p>
+                            </div>
                         </div>
                         <div>현재 제공되는 종합상황판이 없습니다.</div>
                         <div className="hospital-detail">
                             <button className="button absolute-button r17w"
                                 onClick={handleEmergencyToHospital}>병원 상세보기
                             </button>
-                            {/* <FindRoute 
-                                startLocation={startLocation}
-                                destination={destination}
-                                map={map}
-                                markerImage={markerImage}
-                            >
-                                <div style={{ color: "red", cursor: "pointer" }}>
-                                    <span>응급실 경로</span>
-                                </div>
-                            </FindRoute> */}
                         </div>
                     </div>
                     ) : (
-                    <div className="situation-board scroll">
-                        <div className="top-title">
-                            <div className="name r20b">응급실 종합상황판</div>
-                            <button className="close-button" onClick={handleCloseBoardDetail}>
-                                <img src={images['close16.png']} alt="닫기" />
-                            </button>
-                        </div>
-                        <EmergencyDetail 
-                            selectedEmergency={selectedEmergency} 
-                            region={region}
-                            onHospitalDetail={handleEmergencyToHospital}
-                            onFindRoute={handleFindRoute} />
-                    </div>
+                        isBoardDetailVisible && (
+                            <div className="situation-board scroll">
+                                <div className="top-title">
+                                    <div className="name r20b">응급실 종합상황판</div>
+                                    <button className="close-button" onClick={handleCloseBoardDetail}>
+                                        <img src={images['close16.png']} alt="닫기" />
+                                    </button>
+                                </div>
+                                <EmergencyDetail 
+                                    selectedEmergency={selectedEmergency} 
+                                    region={region}
+                                    onHospitalDetail={handleEmergencyToHospital}
+                                    onFindRoute={handleFindRoute}
+                                />
+                            </div>
+                        )
                     )
             ) : (
                 <div>선택된 응급실 정보가 없습니다.</div>

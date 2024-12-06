@@ -3,7 +3,7 @@ import { images } from "../../utils/images";
 import { useEffect, useState } from "react";
 import HospitalDetail from "../hospital/HospitalDetail";
 
-const EmergencyDetail = ({ selectedEmergency, selectedSido, region, onHospitalDetail }) => {
+const EmergencyDetail = ({ selectedEmergency, selectedSido, region, onHospitalDetail, onFindRoute }) => {
     const {Tmapv2} = window;
     const markerImage = images['marker_emergency.png'];
     const [matchedAcceptance, setAcceptance] = useState({});
@@ -106,7 +106,8 @@ const EmergencyDetail = ({ selectedEmergency, selectedSido, region, onHospitalDe
             <div className="emergency-detail">
                 <div className="emergency-title">
                     <div className="emergency-name b25mc">{selectedEmergency.dutyName}</div>
-                    <div className="find r17mc" onClick={handleRP}>
+                    <div className="find r17mc" 
+                        onClick={onFindRoute}>
                         <p>길찾기</p>
                     </div>
                 </div>
