@@ -15,7 +15,6 @@ import Login from './pages/member/Login';
 import MyPage from './pages/member/mypage/MyPage';
 import Header from './layout/Header';
 import Footer from './layout/Footer';
-import Pharmacy2 from './pages/pharmacy/Pharmacy2';
 
 export const mainContext = createContext();
 function App() {
