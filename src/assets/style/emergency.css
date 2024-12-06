@@ -11,6 +11,8 @@ body {
     overflow: auto;
     height: calc(100vh - 214px);
     /* padding-right: 3px; */
+    height: calc(100vh - 214px);
+    /* padding-right: 3px; */
 }
 #emergency .scroll::-webkit-scrollbar {
     width: 5px;

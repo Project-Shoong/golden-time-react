@@ -27,6 +27,7 @@ const Emergency = ()=>{
     const API_BASE_URL = "https://apis.data.go.kr/B552657/ErmctInfoInqireService";
 
 
+
     // 지도 초기화, 현재 위치
     useEffect(() => {
         const mapDiv = document.getElementById("map_div");
@@ -89,6 +90,7 @@ const Emergency = ()=>{
             ]);
             const realTime = response1.data?.response?.body?.items?.item;
             const organList = response2.data?.response?.body?.items?.item;
+            
             
             const realTimeArray = Array.isArray(realTime) ? realTime : realTime ? [realTime] : [];
             const organListArray = Array.isArray(organList) ? organList : organList ? [organList] : [];
@@ -300,11 +302,15 @@ const Emergency = ()=>{
         setIsBoardDetailOpen(true);
         setSelectedHospital(null); 
         setIsDetailOpen(false);
+        setIsBoardDetailOpen(true);
+        setSelectedHospital(null); 
+        setIsDetailOpen(false);
     };
 
     // 종합상환판 닫힘
     const handleCloseBoardDetail = () => {
         setSelectedEmergency(null);
+        setIsBoardDetailOpen(false);
         setIsBoardDetailOpen(false);
     };
 
