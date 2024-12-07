@@ -311,15 +311,11 @@ const Emergency = ()=>{
         setIsBoardDetailOpen(true);
         setSelectedHospital(null); 
         setIsDetailOpen(false);
-        setIsBoardDetailOpen(true);
-        setSelectedHospital(null); 
-        setIsDetailOpen(false);
     };
 
     // 종합상환판 닫힘
     const handleCloseBoardDetail = () => {
         setSelectedEmergency(null);
-        setIsBoardDetailOpen(false);
         setIsBoardDetailOpen(false);
     };
 
