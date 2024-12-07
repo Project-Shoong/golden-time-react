@@ -28,6 +28,7 @@ const Emergency = ()=>{
     const API_BASE_URL = "https://apis.data.go.kr/B552657/ErmctInfoInqireService";
 
 
+
     // 지도 초기화, 현재 위치
     useEffect(() => {
         const mapDiv = document.getElementById("map_div");
@@ -46,12 +47,12 @@ const Emergency = ()=>{
         }
     }, []);
 
-    // 지역, 키워드 업데이트
+    // 지역 업데이트
     useEffect(() => {
         if (region.sigungu) {
             getSearchResults();
         }
-    }, [region.sigungu, searchKeyword]);
+    }, [region.sigungu]);
 
     // 전체 검색 업데이트
     useEffect(() => {
@@ -127,7 +128,6 @@ const Emergency = ()=>{
 
             setRealResults(filteredData); //결과 업데이트
             updateMarkers(filteredData); //마커 생성
-
         } catch (error) {
             console.error("api 요청 실패한 이유: ", error);
         }
@@ -318,11 +318,15 @@ const Emergency = ()=>{
         setIsBoardDetailOpen(true);
         setSelectedHospital(null); 
         setIsDetailOpen(false);
+        setIsBoardDetailOpen(true);
+        setSelectedHospital(null); 
+        setIsDetailOpen(false);
     };
 
     // 종합상환판 닫힘
     const handleCloseBoardDetail = () => {
         setSelectedEmergency(null);
+        setIsBoardDetailOpen(false);
         setIsBoardDetailOpen(false);
     };
 
