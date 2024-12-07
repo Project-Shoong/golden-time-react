@@ -20,6 +20,7 @@ const Medicine = () => {
     const API_BASE_URL = "https://apis.data.go.kr/1471000";
 
     useEffect(() => {
+        console.log(filteredData);
     }, [filteredData]);
 
     // 의약품 api
@@ -68,14 +69,13 @@ const Medicine = () => {
         }
     };
 
-    // 검색
+    // 검색어 저장
     const handleSearch = async (query) => {
         if(query.trim() === "") {
             alert("검색어를 입력하세요!");
             return;
         }
         const medicineData = await getMedicines(query);
-        setData(medicineData);
         setFilteredData(medicineData);
     };
 
@@ -94,7 +94,6 @@ const Medicine = () => {
             return matchesIngredient && matchesEffect && matchesType && matchesForm;
         });
 
-        setData(medicineData);
         setFilteredData(filtered);
     };
 
@@ -132,10 +131,10 @@ const Medicine = () => {
                     <tbody className="r15b">
                         {currentData.length > 0 ? (
                             currentData.map((item, index) => {
-                                // ITEM_NAME 기준으로 분리
-                                const parts = item.ITEM_NAME ? item.ITEM_NAME.split(/\(|\)/) : [];
+                                // ITEM_NAME 기준으로 분리 - (첫번째 괄호와 마지막 괄호 기준)
+                                const parts = item.ITEM_NAME ? item.ITEM_NAME.split(/\((.*?)\)/) : [];
                                 const name = parts[0]?.trim() || "";
-                                const ingredient = parts[1]?.trim() || "";
+                                const ingredient = parts.length > 2 ? parts.slice(1, -1).join(" ").trim() : "";
 
                                 return (
                                     <React.Fragment key={index}>
