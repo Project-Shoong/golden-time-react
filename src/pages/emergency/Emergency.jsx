@@ -28,7 +28,6 @@ const Emergency = ()=>{
     const API_BASE_URL = "https://apis.data.go.kr/B552657/ErmctInfoInqireService";
 
 
-
     // 지도 초기화, 현재 위치
     useEffect(() => {
         const mapDiv = document.getElementById("map_div");
@@ -47,12 +46,19 @@ const Emergency = ()=>{
         }
     }, []);
 
-    // 지역 업데이트
+    // 지역, 키워드 업데이트
     useEffect(() => {
         if (region.sigungu) {
             getSearchResults();
         }
-    }, [region.sigungu]);
+    }, [region.sigungu, searchKeyword]);
+
+    // 전체 검색 업데이트
+    useEffect(() => {
+        if (region || searchKeyword) {
+            getSearchResults({ region, keyword: searchKeyword });
+        }
+    }, [region, searchKeyword]);
 
     // 응급실 리스트 업데이트
     useEffect(() => {
@@ -67,36 +73,39 @@ const Emergency = ()=>{
     const getSearchResults = async () => {
         const {sido, sigungu} = region;
         try {
-            let newSido = sido;
-            let newSigungu = sigungu;
+            let newSido = sido || "";
+            let newSigungu = sigungu || "";
 
             if(sigungu.split(" ").length >= 2){
                 newSido = sigungu.split(" ")[0];
                 newSigungu = sigungu.split(" ")[1];
             }
 
+            const params1 = {
+                serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
+                pageNo: 1,
+                numOfRows: 600,
+            };
+    
+            const params2 = {
+                serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
+                pageNo: 1,
+                numOfRows: 600,
+            };
+
+            if (newSido) params1.STAGE1 = newSido;
+            if (newSigungu) params2.STAGE2 = newSigungu;
+
+            if (newSido) params2.Q0 = newSido;
+            if (newSigungu) params2.Q1 = newSigungu;    
+
             const [response1, response2] = await axios.all([
                 // 응급실 실시간 가용병상정보 조회
-                axios.get(`${API_BASE_URL}/getEmrrmRltmUsefulSckbdInfoInqire`, {
-                    params: {
-                        serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
-                        STAGE1: newSido === "all" ? "" : newSido,
-                        STAGE2: newSigungu === "all" ? "" : newSigungu,
-                        pageNo: 1,
-                        numOfRows: 30
-                    },
-                }),
+                axios.get(`${API_BASE_URL}/getEmrrmRltmUsefulSckbdInfoInqire`, { params: params1 }),
                 // 기관 정보 
-                axios.get(`${API_BASE_URL}/getEgytListInfoInqire`, {
-                    params: {
-                        serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
-                        Q0: newSido === "all" ? "" : newSido,
-                        Q1: newSigungu === "all" ? "" : newSigungu,
-                        pageNo: 1,
-                        numOfRows: 30
-                    },
-                }),
+                axios.get(`${API_BASE_URL}/getEgytListInfoInqire`, { params: params2 }),
             ]);
+
             const realTime = response1.data?.response?.body?.items?.item;
             const organList = response2.data?.response?.body?.items?.item;
             
@@ -118,7 +127,7 @@ const Emergency = ()=>{
 
             setRealResults(filteredData); //결과 업데이트
             updateMarkers(filteredData); //마커 생성
-            console.log("filteredData: ", filteredData);
+
         } catch (error) {
             console.error("api 요청 실패한 이유: ", error);
         }
@@ -301,8 +310,6 @@ const Emergency = ()=>{
         getRP(selectedEmergency); 
         setIsBoardDetailVisible(false); // EmergencyDetail 숨기기
     };
-
-
     
 
     // 종합상환판 열림
@@ -320,14 +327,15 @@ const Emergency = ()=>{
     };
 
     // onSearch 핸들러 - 지역/키워드 업데이트
-    const handleSearch = ({region, keyword: searchKeyword }) => {
+    const handleSearch = ({region, keyword }) => {
         setRegion(region);
-        setSearchKeyword(searchKeyword);
+        setSearchKeyword(keyword);
         setSelectedEmergency(null);
         setIsBoardDetailOpen(false);
         setSelectedHospital(null); 
         setIsDetailOpen(false);
-    };
+        getSearchResults({ region, keyword });
+    }; 
 
     // 병원에 관한 것
     const getFormattedTime = (time) => {
