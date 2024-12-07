@@ -10,6 +10,7 @@ import FindRoute from '../../components/FindRoute';
 const Emergency = ()=>{
     const {Tmapv2} = window;
     const markerImage = images['marker_emergency.png'];
+    const markerImage2 = images['marker_current.png'];
 
     const [map, setMap] = useState(null);
     const [markers, setMarkers] = useState([]);
@@ -223,7 +224,7 @@ const Emergency = ()=>{
                     currentPosition.longitude
                 ),
                 map,
-                icon: markerImage,
+                icon: markerImage2,
                 label: "현재 위치",
             });
 
