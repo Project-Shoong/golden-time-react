@@ -19,6 +19,7 @@ const Medicine = () => {
     const API_BASE_URL = "https://apis.data.go.kr/1471000";
 
     useEffect(() => {
+        console.log("filteredData", filteredData);
         setExpand(null); //아코디언 초기화
     }, [filteredData]);
 
@@ -61,6 +62,15 @@ const Medicine = () => {
                     : {...medi1Item, isMatched: false};
             });
 
+            // 두 api 에서 공통데이터 확인 콘솔
+            // console.log("medi1 데이터:", medi1);
+            // console.log("medi2 데이터:", medi2);
+
+            // // 공통 속성 확인
+            // const commonItems = medi1.filter(medi1Item =>
+            //     medi2.some(medi2Item => String(medi1Item.ITEM_SEQ) === String(medi2Item.itemSeq))
+            // );
+            // console.log("공통 데이터:", commonItems);
             return medicineData;
 
         } catch (error) {
