@@ -7,7 +7,6 @@ import MedicineHistory from './MedicineHistory';
 import MedicineDetailSearch from './MedicineDetailSearch';
 
 const Medicine = () => {
-    const [data, setData] = useState([]); //원본 데이터
     const [filteredData, setFilteredData] = useState([]); //필터링 데이터
     const [expand, setExpand] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -20,7 +19,7 @@ const Medicine = () => {
     const API_BASE_URL = "https://apis.data.go.kr/1471000";
 
     useEffect(() => {
-        console.log(filteredData);
+        setExpand(null); //아코디언 초기화
     }, [filteredData]);
 
     // 의약품 api
@@ -134,7 +133,7 @@ const Medicine = () => {
                                 // ITEM_NAME 기준으로 분리 - (첫번째 괄호와 마지막 괄호 기준)
                                 const parts = item.ITEM_NAME ? item.ITEM_NAME.split(/\((.*?)\)/) : [];
                                 const name = parts[0]?.trim() || "";
-                                const ingredient = parts.length > 2 ? parts.slice(1, -1).join(" ").trim() : "";
+                                const ingredient = parts.length > 2 ? parts.slice(1, -1).join(" ").trim() : ""; // 첫 번째 괄호와 마지막 괄호 사이의 내용을 모두 합침
 
                                 return (
                                     <React.Fragment key={index}>
