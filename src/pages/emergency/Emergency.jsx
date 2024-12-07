@@ -67,13 +67,21 @@ const Emergency = ()=>{
     const getSearchResults = async () => {
         const {sido, sigungu} = region;
         try {
+            let newSido = sido;
+            let newSigungu = sigungu;
+
+            if(sigungu.split(" ").length >= 2){
+                newSido = sigungu.split(" ")[0];
+                newSigungu = sigungu.split(" ")[1];
+            }
+
             const [response1, response2] = await axios.all([
                 // 응급실 실시간 가용병상정보 조회
                 axios.get(`${API_BASE_URL}/getEmrrmRltmUsefulSckbdInfoInqire`, {
                     params: {
                         serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
-                        STAGE1: sido,
-                        STAGE2: sigungu,
+                        STAGE1: newSido === "all" ? "" : newSido,
+                        STAGE2: newSigungu === "all" ? "" : newSigungu,
                         pageNo: 1,
                         numOfRows: 30
                     },
@@ -82,8 +90,8 @@ const Emergency = ()=>{
                 axios.get(`${API_BASE_URL}/getEgytListInfoInqire`, {
                     params: {
                         serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
-                        Q0: sido,
-                        Q1: sigungu,
+                        Q0: newSido === "all" ? "" : newSido,
+                        Q1: newSigungu === "all" ? "" : newSigungu,
                         pageNo: 1,
                         numOfRows: 30
                     },
