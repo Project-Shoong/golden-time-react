@@ -50,6 +50,7 @@ const Emergency = ()=>{
     // 지역 업데이트
     useEffect(() => {
         if (region.sigungu) {
+            removeMarkers();
             getSearchResults();
         }
     }, [region.sigungu]);
@@ -57,6 +58,7 @@ const Emergency = ()=>{
     // 전체 검색 업데이트
     useEffect(() => {
         if (region || searchKeyword) {
+            removeMarkers();
             getSearchResults({ region, keyword: searchKeyword });
         }
     }, [region, searchKeyword]);
@@ -68,6 +70,7 @@ const Emergency = ()=>{
         if (realResults.length > 0) {
             updateMarkers(realResults); 
         }
+        console.log("realResults", realResults);
     }, [realResults]);
 
     // 응급실 api 요청
@@ -127,7 +130,7 @@ const Emergency = ()=>{
                 : realData;
 
             setRealResults(filteredData); //결과 업데이트
-            updateMarkers(filteredData); //마커 생성
+            console.log("filteredData", filteredData);
         } catch (error) {
             console.error("api 요청 실패한 이유: ", error);
         }
@@ -163,10 +166,6 @@ const Emergency = ()=>{
     // 마커
     const updateMarkers = (filteredData) => {
         if(map) {
-            // 기존 마커 제거
-            removeMarkers();
-
-            // 새 마커 추가
             const newMarkers = filteredData.map((emergency) => {
                 const marker = new Tmapv2.Marker({
                     position: new Tmapv2.LatLng(emergency.wgs84Lat, emergency.wgs84Lon),
@@ -176,7 +175,7 @@ const Emergency = ()=>{
                 marker.addListener("click", () => handleMarkerClick(emergency));
                 return marker;
             });
-            setMarkers(newMarkers);
+            setMarkers(newMarkers);      
         }
     };
 
