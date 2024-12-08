@@ -47,19 +47,19 @@ const Emergency = ()=>{
         }
     }, []);
 
-    // 지역 업데이트
+    // 자동검색 - 지역 업데이트
     useEffect(() => {
         if (region.sigungu) {
             removeMarkers();
-            getSearchResults();
+            getSearchResults({ region, keyword: searchKeyword });
         }
-    }, [region.sigungu]);
+    }, [region.sigungu, searchKeyword]);
 
     // 전체 검색 업데이트
     useEffect(() => {
-        if (region || searchKeyword) {
+        if (!region.sigungu && searchKeyword.trim()) {
             removeMarkers();
-            getSearchResults({ region, keyword: searchKeyword });
+            getSearchResults({ region: { sido: "", sigungu: "" }, keyword: searchKeyword });
         }
     }, [region, searchKeyword]);
 
@@ -70,7 +70,6 @@ const Emergency = ()=>{
         if (realResults.length > 0) {
             updateMarkers(realResults); 
         }
-        console.log("realResults", realResults);
     }, [realResults]);
 
     // 응급실 api 요청
@@ -130,7 +129,6 @@ const Emergency = ()=>{
                 : realData;
 
             setRealResults(filteredData); //결과 업데이트
-            console.log("filteredData", filteredData);
         } catch (error) {
             console.error("api 요청 실패한 이유: ", error);
         }
@@ -173,7 +171,7 @@ const Emergency = ()=>{
                     icon: markerImage,
                 });
                 marker.addListener("click", () => handleMarkerClick(emergency));
-                return marker;
+                return marker; 
             });
             setMarkers(newMarkers);      
         }
@@ -337,7 +335,6 @@ const Emergency = ()=>{
         setIsBoardDetailOpen(false);
         setSelectedHospital(null); 
         setIsDetailOpen(false);
-        getSearchResults({ region, keyword });
     }; 
 
     // 병원에 관한 것
