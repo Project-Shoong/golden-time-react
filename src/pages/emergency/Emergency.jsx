@@ -29,7 +29,8 @@ const Emergency = ()=>{
     const { loginMember } = useContext(mainContext);
     const [isDetailOpen, setIsDetailOpen] = useState(false); //병원 상세보기 열림 여부
     const [selectIndex, setSelectIndex] = useState("");
-    const [selectedHospital, setSelectedHospital] = useState(null);const [favorites, setFavorites] = useState([]);
+    const [selectedHospital, setSelectedHospital] = useState(null);
+    const [favorites, setFavorites] = useState([]);
     const [favoriteIndex, setFavoriteIndex] = useState("");
     const [isFavorite, setIsFavorite] = useState(null);
 
