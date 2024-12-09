@@ -325,6 +325,7 @@ const Emergency = ()=>{
         setSelectedEmergency(null);
         setIsBoardDetailOpen(false);
         setIsBoardDetailOpen(false);
+        setIsDetailOpen(false);
     };
 
     // onSearch 핸들러 - 지역/키워드 업데이트
