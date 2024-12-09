@@ -15,13 +15,20 @@ import Login from './pages/member/Login';
 import MyPage from './pages/member/mypage/MyPage';
 import Header from './layout/Header';
 import Footer from './layout/Footer';
+import IdInquiry from './pages/member/help/IdInquiry';
+import PwInquiry from './pages/member/help/PwInquiry';
 
 export const mainContext = createContext();
 function App() {
-  const [loginMember, setLoginMember] = useState(null);
+  const [loginMember, setLoginMember] = useState(sessionStorage.getItem("loginMember"));
 
   useEffect(()=>{
-    sessionStorage.setItem("loginMember", loginMember);
+    if(loginMember){
+      sessionStorage.setItem("loginMember", loginMember);
+    }
+    else{
+      sessionStorage.removeItem("loginMember");
+    }
   },[loginMember])
   
   return (
@@ -41,6 +48,8 @@ function App() {
           <Route path="/member/join" element={<Join />} />
           <Route path="/member/login" element={<Login />} />
           <Route path="/member/mypage" element={<MyPage />} />
+          <Route path="/member/help/IdInquiry" element={<IdInquiry />} />
+          <Route path="/member/help/PwInquiry" element={<PwInquiry />} />
         </Routes>
         <Footer />
       </mainContext.Provider>
