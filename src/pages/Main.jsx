@@ -1,8 +1,106 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, version } from "react";
 import { images } from '../utils/images';
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Main = ()=>{
+    const [sido, setSido] = useState("");
+    const [emergency, setEmergency] = useState([]);
+
+    const API_BASE_URL = "https://apis.data.go.kr/B552657/ErmctInfoInqireService";
+
+    // 현재 위치를 기반으로 가장 가까운 응급실 3 군데 보여주기
+    // 1. 현재 위치를 시도 가져온다.
+    // 2. 시도를 api 호출하는 파라미터로 넘긴다. 
+    // 3. 받아온 데이터로 화면에 렌더링
+
+    // 현재 위치
+    useEffect(() => {
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+    
+                try {
+                    const response = await axios.get("https://apis.openapi.sk.com/tmap/geo/reversegeocoding", {
+                        params: {
+                            version: 1,
+                            lat: latitude,
+                            lon: longitude,
+                            appKey: process.env.REACT_APP_TMAP_APP_KEY,
+                        },
+                    });
+    
+                    const sido = response.data?.addressInfo.city_do || "";
+                    setSido(sido);
+                    console.log("sido", sido);
+    
+                } catch (error) {
+                    console.log("Reverse Geocoding 실패:", error);
+                }
+            }
+        )
+    }, []);
+
+    useEffect(() => {
+        if(!sido) return;
+        const getEmergency = async () => {
+            try {
+                const [response1, response2] = await axios.all([
+                    // 응급실 실시간 가용병상정보 조회
+                    axios.get(`${API_BASE_URL}/getEmrrmRltmUsefulSckbdInfoInqire`, { 
+                        params: {
+                            serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
+                            pageNo: 1,
+                            numOfRows: 10,
+                            STAGE1: sido,
+                        } 
+                    }),
+                    // 기관 정보 
+                    axios.get(`${API_BASE_URL}/getEgytListInfoInqire`, { 
+                        params: {
+                            serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
+                            pageNo: 1,
+                            numOfRows: 10,
+                            Q0: sido,
+                        }
+                    }),
+                ]);
+    
+                const realTime = response1.data?.response?.body?.items?.item;
+                const organList = response2.data?.response?.body?.items?.item;
+                
+                const realTimeArray = Array.isArray(realTime) ? realTime : realTime ? [realTime] : [];
+                const organListArray = Array.isArray(organList) ? organList : organList ? [organList] : [];
+    
+                // 데이터 병합
+                const realData = organListArray.map((organItem) => {
+                    const realItem = realTimeArray.find((real) => real.hpid === organItem.hpid);
+                    return {...organItem, ...realItem};
+                });
+
+                // 거리 계산
+                // const enrichedData = realData.map((item) => {
+                //     const distance = calculateDistance(
+                //         currentPotion.latitude,
+                //         currentPotion.longitude,
+                    
+                //     )
+                // })
+    
+                setEmergency(realData);
+                //
+                console.log("realData", realData);
+            } catch (error) {
+                console.error("api 요청 실패한 이유: ", error);
+            }
+    
+        };
+        getEmergency();
+    }, [sido]);
+
+    // 거리 계산 함수
+    
+
     return (
         <div id="main">
             <section>
