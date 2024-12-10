@@ -62,6 +62,8 @@ const Emergency = ()=>{
     useEffect(() => {
         if (region.sigungu) {
             removeMarkers();
+            setSortedResults([]);
+            setIsDistanceSorted(false);
             getSearchResults({ region, keyword: searchKeyword });
         }
     }, [region.sigungu, searchKeyword]);
@@ -70,6 +72,8 @@ const Emergency = ()=>{
     useEffect(() => {
         if (!region.sigungu && searchKeyword.trim()) {
             removeMarkers();
+            setSortedResults([]);
+            setIsDistanceSorted(false);
             getSearchResults({ region: { sido: "", sigungu: "" }, keyword: searchKeyword });
         }
     }, [region, searchKeyword]);
