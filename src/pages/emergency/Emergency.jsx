@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { images } from '../../utils/images';
 import EmergencySearch from './EmergencySearch';
 import EmergencyList from './EmergencyList';
 import EmergencyDetail from './EmergencyDetail';
 import axios from 'axios';
 import HospitalDetail from '../hospital/HospitalDetail';
+
 import FindRoute from '../../components/FindRoute';
+import { mainContext } from '../../App';
 
 const Emergency = ()=>{
     const {Tmapv2} = window;
@@ -21,9 +23,18 @@ const Emergency = ()=>{
     const [region, setRegion] = useState({sido:"", sigungu:""});
     const [searchKeyword, setSearchKeyword] = useState("");
     const [isBoardDetailOpen, setIsBoardDetailOpen] = useState(false); //종합상황판 열림 여부
-    const [isDetailOpen, setIsDetailOpen] = useState(false); //병원 상세보기 열림 여부
-    const [selectedHospital, setSelectedHospital] = useState(null);
     const [isBoardDetailVisible, setIsBoardDetailVisible] = useState(true); // 초기값: 보이도록 설정
+    const [sortedResults, setSortedResults] = useState([]);
+    const [isDistanceSorted, setIsDistanceSorted] = useState(false); //거리순 정렬상태
+    
+    // 병원
+    const { loginMember } = useContext(mainContext);
+    const [isDetailOpen, setIsDetailOpen] = useState(false); //병원 상세보기 열림 여부
+    const [selectIndex, setSelectIndex] = useState("");
+    const [selectedHospital, setSelectedHospital] = useState(null);
+    const [favorites, setFavorites] = useState([]);
+    const [favoriteIndex, setFavoriteIndex] = useState("");
+    const [isFavorite, setIsFavorite] = useState(null);
 
     const API_BASE_URL = "https://apis.data.go.kr/B552657/ErmctInfoInqireService";
 
@@ -51,6 +62,8 @@ const Emergency = ()=>{
     useEffect(() => {
         if (region.sigungu) {
             removeMarkers();
+            setSortedResults([]);
+            setIsDistanceSorted(false);
             getSearchResults({ region, keyword: searchKeyword });
         }
     }, [region.sigungu, searchKeyword]);
@@ -59,6 +72,8 @@ const Emergency = ()=>{
     useEffect(() => {
         if (!region.sigungu && searchKeyword.trim()) {
             removeMarkers();
+            setSortedResults([]);
+            setIsDistanceSorted(false);
             getSearchResults({ region: { sido: "", sigungu: "" }, keyword: searchKeyword });
         }
     }, [region, searchKeyword]);
@@ -325,6 +340,7 @@ const Emergency = ()=>{
         setSelectedEmergency(null);
         setIsBoardDetailOpen(false);
         setIsBoardDetailOpen(false);
+        setIsDetailOpen(false);
     };
 
     // onSearch 핸들러 - 지역/키워드 업데이트
@@ -338,35 +354,6 @@ const Emergency = ()=>{
     }; 
 
     // 병원에 관한 것
-    const getFormattedTime = (time) => {
-        if (!time) return null;
-        const timeStr = time.toString().padStart(4, '0');
-        return `${timeStr.slice(0, 2)}:${timeStr.slice(2)}`;
-    };
-    const checkOpenStatus = (hospital) => {
-        const today = new Date();
-        const currentDay = today.getDay() === 0 ? 7 : today.getDay();
-        const currentTime = `${today.getHours().toString().padStart(2, '0')}${today.getMinutes().toString().padStart(2, '0')}`; // 현재 시간 'HHmm' 포맷
-
-        const openTime = hospital[`dutyTime${currentDay}s`];
-        const closeTime = hospital[`dutyTime${currentDay}c`];
-
-        if (!openTime || !closeTime) {
-            return { status: "오늘 휴무", open: null, close: null };
-        }
-
-        const isOpen = currentTime >= openTime && currentTime <= closeTime;
-
-        return {
-            status: isOpen ? "진료중" : "진료 종료",
-            open: getFormattedTime(openTime),
-            close: getFormattedTime(closeTime),
-        };
-    }
-    const cleanHospitalName = (name) => {
-        // (사), (의), "사", "의", &#40;사&#41;, &#40;의&#41; 등을 제거
-        return name ? name.replace(/(\(사\)|\(의\)|"사"|"의"|&#40;사&#41;|&#40;의&#41;)/g, "").trim() : "";
-    };
     const renameClassification = (dutyDivNam, dutyName) => {
         if (dutyDivNam === '의원') {
             const departmentMap = {
@@ -423,21 +410,105 @@ const Emergency = ()=>{
             console.error("api 요청 실패한 이유: ", error);
         }
     };
+    const favoriteStar = async (hospital, index) => {
+        if(!loginMember){
+            alert("즐겨찾기는 로그인 이후 설정 가능합니다. ")
+            return;
+        }
+        const isFavorited = favorites[index]; // 현재 즐겨찾기 상태
+        setFavoriteIndex(index);
+        try {
+            if (!isFavorited) {
+                // 즐겨찾기 추가
+                const response = await axios.post('/api/hospital/favorite', {
+                    classification : hospital.dutyDivNam,
+                    memberId : loginMember,
+                    dutyId : hospital.hpid,
+                    dutyName : hospital.dutyName,
+                    dutyDiv : hospital.dutyDivNam,
+                    dutyTel : hospital.dutyTel1,
+                });
+            } else {
+                // 즐겨찾기 삭제
+                const response = await axios({
+                    method: 'delete',
+                    url: `/api/hospital/favorite`,
+                    data: {
+                        memberId: loginMember,
+                        dutyId: hospital.hpid,
+                    },
+                });
+            }
+      
+            // 즐겨찾기 상태 업데이트
+            setFavorites((prevFavorites) => 
+                prevFavorites.map((fav, i) => (i === index ? !fav : fav))
+            );
+            
+        } catch (error) {
+            console.error('즐겨찾기 요청 중 오류 발생:', error);
+            console.log(error.response?.data); 
+        }
+    }
 
     const handleEmergencyList = (emergency) => {
         handleOpenBoardDetail(emergency) //상황종합판 열림
         handleMarkerClick(emergency)  //마커 클릭 처리
     }
 
+    // 거리 계산
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+        const R = 6371;
+        const dLat = ((lat2 - lat1) * Math.PI) / 180;
+        const dLon = ((lon2 - lon1) * Math.PI) / 180;
+        const a = 
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    };
+
+    // 거리 정보
+    const enrichedData = (data) => {
+        return data.map((item) => {
+            const distance = calculateDistance(
+                currentPosition.latitude,
+                currentPosition.longitude,
+                item.wgs84Lat,
+                item.wgs84Lon
+            );
+            return { ...item, distance };
+        });
+    };
+
+    // 거리순 정렬
+    const sortByDistance = () => {
+        const enrichedSortedData = enrichedData(realResults);
+        const sorted = enrichedSortedData.sort((a, b) => a.distance - b.distance);
+        setSortedResults(sorted);
+        setIsDistanceSorted(true);
+    };
+
+    // EmergencyList 에 전달한 데이터 선택
+    const resultsToShow = isDistanceSorted ? sortedResults : realResults;
+
     return (
         <div id="emergency" className="emergency-container">
             <div id="map_div" className="map-background" ></div>
             <div className="sidebar">
                 <EmergencySearch onSearch={handleSearch} />
-                <div className="total-count r15b">총 {realResults.length} 건</div>
+                <div className="flex">
+                    <div className="total-count r16b">총 {realResults.length} 건</div>
+                    <ul className="sorting">
+                        <li onClick={sortByDistance}>거리순</li>
+                    </ul>
+                </div>
                 <div className="scroll">
                     <EmergencyList 
-                        results={realResults} 
+                        results={resultsToShow} 
                         onClick={handleEmergencyList}
                     />
                 </div>
@@ -492,12 +563,13 @@ const Emergency = ()=>{
             {isDetailOpen && selectedHospital && (
                 <HospitalDetail
                     isDetailOpen={isDetailOpen}
-                    selectedHospital={selectedHospital}
+                    selectIndex={selectIndex}
+                    selectedHospital={selectedHospital} 
+                    isFavorite={isFavorite}
+                    setIsFavorite={setIsFavorite}
                     onClose={handleCloseDetail}
-                    getFormattedTime={getFormattedTime}
-                    checkOpenStatus={checkOpenStatus}
-                    cleanHospitalName={cleanHospitalName}
                     renameClassification={renameClassification}
+                    favoriteStar={favoriteStar}
                 />
             )}
         </div>

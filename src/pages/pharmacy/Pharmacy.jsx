@@ -830,7 +830,30 @@ const Pharmacy = () => {
         getRP(selectedPharm);
     };
 
+    //유저 아이디 체크
+    const { loginMember } = useContext(mainContext);
 
+    const [memberNickname, setMemberNickname] = useState([]);
+
+    //닉네임 받아오기
+    const getMemberNickName = async (loginMember) => {
+        try {
+            // hpid 리스트를 쿼리 파라미터로 전송
+            const response = await axios.get(`/api/review/getnickname`, {
+                params: {
+                    memberId: loginMember
+                }
+            });
+            // console.log('HPIDs sent to Spring Boot, status:', response.status);
+            console.log('받은 값:', response.data);
+
+            const NickName = response.data;
+            setMemberNickname(NickName);
+
+        } catch (error) {
+            // console.error('Error sending hpid to Spring Boot:', error);
+        }
+    };
 
     const [memberNickname, setMemberNickname] = useState([]);
 
