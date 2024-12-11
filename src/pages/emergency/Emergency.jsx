@@ -186,6 +186,12 @@ const Emergency = ()=>{
                     icon: markerImage,
                 });
                 marker.addListener("click", () => handleMarkerClick(emergency));
+                marker.addListener("mouseenter", function(evt) {
+                    marker.setLabel('<span style="position:relative; display:inline-block; padding:3px 5px; border-radius:3px; background-color: #fc7486; color:white; z-index:1000;">'+emergency.dutyName+'</span>');
+                });
+                marker.addListener("mouseleave", function(evt) {
+                    marker.setLabel(''); 
+                });
                 return marker; 
             });
             setMarkers(newMarkers);      
@@ -202,7 +208,6 @@ const Emergency = ()=>{
             position: new Tmapv2.LatLng(emergency.wgs84Lat, emergency.wgs84Lon),
             map,
             icon: markerImage,
-            label: emergency.dutyName,
         });
 
         if(map) {
@@ -254,8 +259,8 @@ const Emergency = ()=>{
                 ),
                 map,
                 icon: markerImage2,
-                label: "현재 위치",
             });
+            currentMarker.setLabel(`<span style="position:relative; display:inline-block; padding:3px 5px; border-radius:3px;background-color:#1e7fff; color:white; z-index:1000;">현재위치</span>`);
 
             if(map) {
                 map.setCenter(new Tmapv2.LatLng(currentPosition.latitude, currentPosition.longitude));
@@ -308,8 +313,8 @@ const Emergency = ()=>{
                 position: endPoint,
                 map: map,
                 icon: markerImage,
-                label: selectedEmergency.dutyName,
             });
+            endMarker.setLabel(`<span style="position:relative; display:inline-block; padding:3px 5px; border-radius:3px;background-color:#fc7486; color:white; z-index:1000;">`+selectedEmergency.dutyName+`</span>`);
 
             setMarkers((prevMarkers) => [...prevMarkers, endMarker]);
         }
