@@ -352,9 +352,6 @@ const Emergency = ()=>{
         setIsBoardDetailOpen(true);
         setSelectedHospital(null); 
         setIsDetailOpen(false);
-        setIsBoardDetailOpen(true);
-        setSelectedHospital(null); 
-        setIsDetailOpen(false);
     };
 
     // 종합상환판 닫힘
