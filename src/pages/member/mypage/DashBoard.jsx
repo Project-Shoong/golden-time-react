@@ -3,7 +3,7 @@ import { images } from '../../../utils/images';
 import { getMemberInfo, getMemberLikes, getMemberProfile, getMemberReviews } from '../../../apis/services/goldentimeService';
 import { setRatingImage } from './Reviews';
 import { Title } from '../../../constants/constants';
-import { setLikeDetail, setLikeIcon } from './like/Like';
+import { setLikeDetail, setLikeIcon } from './like/Likes';
 import ProfileImage from './ProfileImage';
 
 const DashBoard = (props) => {
@@ -27,8 +27,10 @@ const DashBoard = (props) => {
     useEffect(()=>{
         if(reviewTextRef.current && reviewTextRef.current.length>0) {
             reviewTextRef.current.map((el)=>{
-                el.style.height = el.scrollHeight + "px";
-                el.parentElement.style.height = "auto";
+                if(el) {
+                    el.style.height = el.scrollHeight + "px";
+                    el.parentElement.style.height = "auto";
+                }
             })
         }
     },[reviewList])
@@ -63,7 +65,8 @@ const DashBoard = (props) => {
             <section>
                 <section>
                     <h3>최근 리뷰</h3>
-                    <span className="r14g">최근 한 달간 작성하신 리뷰 목록입니다.</span>
+                    <span className="r14g">{
+                            (reviewList.length>0)?"최근 한 달간 작성하신 리뷰 목록입니다.":"최근 한 달간 작성하신 리뷰가 존재하지 않습니다."}</span>
                     <ul>
                         {
                             reviewList?.map((review)=>{
@@ -89,7 +92,8 @@ const DashBoard = (props) => {
                 <span></span>
                 <section>
                     <h3>최근 즐겨찾기</h3>
-                    <span className="r14g">마지막으로 등록하신 5건의 즐겨찾기 목록입니다.</span>
+                    <span className="r14g">{
+                            (likeList.length>0)?"마지막으로 등록하신 5건의 즐겨찾기 목록입니다.":"즐겨찾기로 등록하신 기관이 존재하지 않습니다."}</span>
                     <ul>
                         {
                             likeList?.map((like)=>{
@@ -111,10 +115,13 @@ const DashBoard = (props) => {
                             })
                         }
                     </ul>
-                    <button onClick={()=>{changeContent(Title.LIKES)}}>
-                        <img src={images['more17.png']} alt=""/>
-                        <span className="b173a7">더보기</span>
-                    </button>
+                    {
+                        likeList.length>0 &&
+                        <button onClick={()=>{changeContent(Title.LIKES)}}>
+                            <img src={images['more17.png']} alt=""/>
+                            <span className="b173a7">더보기</span>
+                        </button>
+                    }
                 </section>
             </section>
         </article>

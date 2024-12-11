@@ -64,12 +64,13 @@ const Reviews = () => {
         if(reviewTextRef.current) {
             reviewTextRef.current.map((el)=>{
                 el.style.height = 'auto';
-                if(el.scrollHeight > 120) {
-                    el.style.height = el.scrollHeight + "px";
-                }
-                else {
-                    el.style.height = "120px";
-                }
+                // if(el.scrollHeight > 120) {
+                //     el.style.height = el.scrollHeight + "px";
+                // }
+                // else {
+                //     el.style.height = "110px";
+                // }
+                el.style.height = el.scrollHeight+50+"px";
             })
         }
     },[reviewList])
@@ -77,7 +78,7 @@ const Reviews = () => {
     const monthHandler = (e)=>{
         const monthValue = e.target.value;
         monthsRef.current.map((el)=>{
-            if(el.innerText===`${monthValue}개월` || (el.innerText==="오늘"&&monthValue==="0")) {
+            if(el.innerText===`${monthValue}개월` || (el.innerText==="오늘"&&monthValue==="-1")) {
                 el.classList.add("b153a7", "selected");
                 el.classList.remove("b156aa");
             } else {
@@ -193,11 +194,12 @@ const Reviews = () => {
                     </div>
                 </div>
                 <ul>
-                    <li>
-                        {
-                            reviewList.items?.map((review)=>{
-                                return (
-                                    <article key={review.reviewId}>
+                    {
+                        (reviewList.items?.length>0)?
+                        reviewList.items?.map((review)=>{
+                            return (
+                                <li key={review.reviewId}>
+                                    <article>
                                         <div>
                                             <div>
                                                 <div>
@@ -224,13 +226,16 @@ const Reviews = () => {
                                         {/* <h4>리뷰 첫번째줄</h4> */}
                                         <textarea className="r14444" ref={addReviewTextRef} value={review.content} readOnly/>
                                     </article>
-                                )
-                            })
-                        }
-                    </li>
+                                </li>
+                            )
+                        }):
+                        <li>
+                            <span className="b16dg empty-list">{`${(condition.classification===""?"기관":condition.classification)} 리뷰를 작성해주세요.`}</span>
+                        </li>
+                    }
                 </ul>
             </section>
-            {(reviewList && (<Pagination datas={reviewList} paging={(pageNo)=>{getMemberReviews({memberId: sessionStorage.getItem("loginMember"), month: Number(condition.month), classification: condition.classification, pageNo: pageNo, numOfRows:NUMOFROWS}, setReviewList)}}/>))}
+            {(reviewList.items?.length>0 && (<Pagination datas={reviewList} paging={(pageNo)=>{getMemberReviews({memberId: sessionStorage.getItem("loginMember"), month: Number(condition.month), classification: condition.classification, pageNo: pageNo, numOfRows:NUMOFROWS}, setReviewList)}}/>))}
             {isModalOpen && (
                 <div className="review-modal">
                     <div className="box">

@@ -6,19 +6,37 @@ import axios from "axios";
 const Main = ()=>{
     const [sido, setSido] = useState("");
     const [emergency, setEmergency] = useState([]);
+    const [currentPosition, setCurrentPosition] = useState(null);
 
     const API_BASE_URL = "https://apis.data.go.kr/B552657/ErmctInfoInqireService";
 
-    // 현재 위치를 기반으로 가장 가까운 응급실 3 군데 보여주기
-    // 1. 현재 위치를 시도 가져온다.
-    // 2. 시도를 api 호출하는 파라미터로 넘긴다. 
-    // 3. 받아온 데이터로 화면에 렌더링
+    // 거리 계산
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+        const R = 6371;
+        const dLat = ((lat2 - lat1) * Math.PI) / 180;
+        const dLon = ((lon2 - lon1) * Math.PI) / 180;
+        const a = 
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    };
 
+    // 주소 정리
+    const extractMainAddress = (address) => {
+        const parts = address.split(/[\(\),]/);
+        return parts[0]?.trim() || "주소 정보 없음";
+    };
+    
     // 현재 위치
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(
             async (position) => {
                 const { latitude, longitude } = position.coords;
+                setCurrentPosition({ latitude, longitude });
     
                 try {
                     const response = await axios.get("https://apis.openapi.sk.com/tmap/geo/reversegeocoding", {
@@ -32,7 +50,6 @@ const Main = ()=>{
     
                     const sido = response.data?.addressInfo.city_do || "";
                     setSido(sido);
-                    console.log("sido", sido);
     
                 } catch (error) {
                     console.log("Reverse Geocoding 실패:", error);
@@ -51,7 +68,7 @@ const Main = ()=>{
                         params: {
                             serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
                             pageNo: 1,
-                            numOfRows: 10,
+                            numOfRows: 100,
                             STAGE1: sido,
                         } 
                     }),
@@ -60,7 +77,7 @@ const Main = ()=>{
                         params: {
                             serviceKey: process.env.REACT_APP_DATA_SERVICE_KEY,
                             pageNo: 1,
-                            numOfRows: 10,
+                            numOfRows: 100,
                             Q0: sido,
                         }
                     }),
@@ -78,18 +95,25 @@ const Main = ()=>{
                     return {...organItem, ...realItem};
                 });
 
+                // 필터링
+                const filteredData = realData.filter((item) => item.dutyEmclsName !== "응급실운영신고기관")
+
                 // 거리 계산
-                // const enrichedData = realData.map((item) => {
-                //     const distance = calculateDistance(
-                //         currentPotion.latitude,
-                //         currentPotion.longitude,
-                    
-                //     )
-                // })
+                const enrichedData = filteredData.map((item) => {
+                    const distance = calculateDistance(
+                        currentPosition.latitude,
+                        currentPosition.longitude,
+                        item.wgs84Lat,
+                        item.wgs84Lon
+                    );
+                    return { ...item, distance };
+                });
+
+                // 거리순 정렬 후 최대 4개
+                const sortedData = enrichedData.sort((a, b) => a.distance - b.distance).slice(0, 4);
     
-                setEmergency(realData);
-                //
-                console.log("realData", realData);
+                setEmergency(sortedData);
+
             } catch (error) {
                 console.error("api 요청 실패한 이유: ", error);
             }
@@ -97,9 +121,6 @@ const Main = ()=>{
         };
         getEmergency();
     }, [sido]);
-
-    // 거리 계산 함수
-    
 
     return (
         <div id="main">
@@ -113,134 +134,45 @@ const Main = ()=>{
                         </p>
                         <div>
                             <ul className="flex">
-                                <li className="block">
-                                    <p>강남세브란스병원 응급진료센터</p>
-                                    <div className="info flex">
-                                        <div>
-                                            <p>현재 위치에서 <b>1.4km</b></p>
-                                            <table>
-                                                <tbody>
-                                                    <tr>
-                                                        <th><img src={images['main_icon_place.png']} alt=""/></th>
-                                                        <td>서울 강남구 언주로 211</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th><img src={images['main_icon_tel.png']} alt=""/></th>
-                                                        <td>02-2019-3333</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                {emergency.length > 0 ? (
+                                    emergency.map((item, index) => (
+                                    <li className="block" key={index}>
+                                        <p>{item.dutyName || "병원 이름 없음"}</p>
+                                        <div className="info flex">
+                                            <div>
+                                                <p>현재 위치에서 <b>{item.distance.toFixed(2)}km</b></p>
+                                                <table>
+                                                    <tbody>
+                                                        <tr>
+                                                            <th><img src={images['main_icon_place.png']} alt=""/></th>
+                                                            <td>{extractMainAddress(item.dutyAddr)}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th><img src={images['main_icon_tel.png']} alt=""/></th>
+                                                            <td>{item.dutyTel3 || "번호 정보 없음"}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <p>{index + 1}</p>
                                         </div>
-                                        <p>1</p>
-                                    </div>
-                                    <div className="bed">
-                                        <p>(가용 병상 수 / 기준 병상 수)</p>
-                                        <ul className="flex color">
-                                            <li className="red">
-                                                일반 <div><span>-7</span> / 15</div>
-                                            </li>
-                                            <li className="yello">
-                                                소아 <div><span>1</span> / 2</div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </li>
-                                <li className="block">
-                                    <p>강남세브란스병원 응급진료센터</p>
-                                    <div className="info flex">
-                                        <div>
-                                            <p>현재 위치에서 <b>5.2km</b></p>
-                                            <table>
-                                                <tbody>
-                                                    <tr>
-                                                        <th><img src={images['main_icon_place.png']} alt=""/></th>
-                                                        <td>서울 강남구 언주로 211</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th><img src={images['main_icon_tel.png']} alt=""/></th>
-                                                        <td>02-2019-3333</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                        <div className="bed">
+                                            <p>(가용 병상 수 / 기준 병상 수)</p>
+                                            <ul className="flex color">
+                                                <li className="red">
+                                                    일반 <div><span>{item.hvec || "-"}</span> / {item.hvs01 || "-"}</div>
+                                                </li>
+                                                <li className="yello">
+                                                    소아 <div><span>{item.hv28 || "-"}</span> / {item.hvs02 || "-"}</div>
+                                                </li>
+                                            </ul>
                                         </div>
-                                        <p>2</p>
-                                    </div>
-                                    <div className="bed">
-                                        <p>(가용 병상 수 / 기준 병상 수)</p>
-                                        <ul className="flex color">
-                                            <li className="green">
-                                                일반 <div><span>2</span> / 15</div>
-                                            </li> 
-                                            <li className="yello">
-                                                소아 <div><span>1</span> / 2</div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </li>
-                                <li className="block">
-                                    <p>강남세브란스병원 응급진료센터</p>
-                                    <div className="info flex">
-                                        <div>
-                                            <p>현재 위치에서 <b>12.6km</b></p>
-                                            <table>
-                                                <tbody>
-                                                    <tr>
-                                                        <th><img src={images['main_icon_place.png']} alt=""/></th>
-                                                        <td>서울 강남구 언주로 211</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th><img src={images['main_icon_tel.png']} alt=""/></th>
-                                                        <td>02-2019-3333</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <p>3</p>
-                                    </div>
-                                    <div className="bed">
-                                        <p>(가용 병상 수 / 기준 병상 수)</p>
-                                        <ul className="flex color">
-                                            <li className="red">
-                                                일반 <div><span>-7</span> / 15</div>
-                                            </li>
-                                            <li className="green">
-                                                소아 <div><span>0</span> / 2</div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </li>
-                                <li className="block">
-                                    <p>강남세브란스병원 응급진료센터</p>
-                                    <div className="info flex">
-                                        <div>
-                                            <p>현재 위치에서 <b>12.6km</b></p>
-                                            <table>
-                                                <tbody>
-                                                    <tr>
-                                                        <th><img src={images['main_icon_place.png']} alt=""/></th>
-                                                        <td>서울 강남구 언주로 211</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th><img src={images['main_icon_tel.png']} alt=""/></th>
-                                                        <td>02-2019-3333</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <p>4</p>
-                                    </div>
-                                    <div className="bed">
-                                        <p>(가용 병상 수 / 기준 병상 수)</p>
-                                        <ul className="flex color">
-                                            <li className="red">
-                                                일반 <div><span>-7</span> / 15</div>
-                                            </li>
-                                            <li className="green">
-                                                소아 <div><span>0</span> / 2</div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </li>
+                                    </li>
+
+                                    ))
+                                ) : (
+                                    <p>현재 위치 기반 응급실 데이터를 불러오는 중입니다...</p>
+                                )}
                             </ul>
                         </div>
                     </div>
@@ -278,37 +210,37 @@ const Main = ()=>{
                         </li>
                         <li>
                             <Link to="/hospital">
-                                <div><img src={images['main_con2_button1.png']} alt=""/></div>
+                                <div><img src={images['main_con2_button2.png']} alt=""/></div>
                                 <p>병원 조회</p>
                             </Link>
                         </li>
                         <li>
                             <Link to="/pharmacy">
-                                <div><img src={images['main_con2_button1.png']} alt=""/></div>
+                                <div><img src={images['main_con2_button3.png']} alt=""/></div>
                                 <p>약국 조회</p>
                             </Link>
                         </li>
                         <li>
                             <Link to="/check-up">
-                                <div><img src={images['main_con2_button1.png']} alt=""/></div>
+                                <div><img src={images['main_con2_button4.png']} alt=""/></div>
                                 <p>건강검진기관</p>
                             </Link>
                         </li>
                         <li>
                             <Link to="/medicine">
-                                <div><img src={images['main_con2_button1.png']} alt=""/></div>
+                                <div><img src={images['main_con2_button5.png']} alt=""/></div>
                                 <p>의약품정보</p>
                             </Link>
                         </li>
                         <li>
                             <Link to="/first-aid/faq">
-                                <div><img src={images['main_con2_button1.png']} alt=""/></div>
+                                <div><img src={images['main_con2_button6.png']} alt=""/></div>
                                 <p>FAQ</p>
                             </Link>
                         </li>
                         <li>
                             <Link to="/first-aid/solution">
-                                <div><img src={images['main_con2_button1.png']} alt=""/></div>
+                                <div><img src={images['main_con2_button7.png']} alt=""/></div>
                                 <p>대처방법</p>
                             </Link>
                         </li>
