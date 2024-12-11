@@ -505,10 +505,15 @@ const Emergency = ()=>{
 
     // 거리순 정렬
     const sortByDistance = () => {
-        const enrichedSortedData = enrichedData(realResults);
-        const sorted = enrichedSortedData.sort((a, b) => a.distance - b.distance);
-        setSortedResults(sorted);
-        setIsDistanceSorted(true);
+        if(isDistanceSorted) {
+            setSortedResults(realResults);
+            setIsDistanceSorted(false);
+        } else {
+            const enrichedSortedData = enrichedData(realResults);
+            const sorted = enrichedSortedData.sort((a, b) => a.distance - b.distance);
+            setSortedResults(sorted);
+            setIsDistanceSorted(true);
+        }
     };
 
     // EmergencyList 에 전달한 데이터 선택
