@@ -261,11 +261,6 @@ const Emergency = ()=>{
                 icon: markerImage2,
             });
             currentMarker.setLabel(`<span style="position:relative; display:inline-block; padding:3px 5px; border-radius:3px;background-color:#1e7fff; color:white; z-index:1000;">현재위치</span>`);
-
-            if(map) {
-                map.setCenter(new Tmapv2.LatLng(currentPosition.latitude, currentPosition.longitude));
-                map.setZoom(15);
-            };
             
         } catch (error) {
             console.log("경로 요청 실패: ", error);
@@ -300,23 +295,28 @@ const Emergency = ()=>{
 
         setRouteLayer(polyline);
 
-        // 지도 중심 좌표 설정
+        // 경로 경계로 지도줌
         if(path.length > 0) {
-            map.setCenter(path[0]);
-            map.setZoom(14);
-        }
+            const bounds = new Tmapv2.LatLngBounds();
 
-        // 도착 마커
-        if(selectedEmergency) {
-            const endPoint = new Tmapv2.LatLng(selectedEmergency.wgs84Lat, selectedEmergency.wgs84Lon);
-            const endMarker = new Tmapv2.Marker({
-                position: endPoint,
-                map: map,
-                icon: markerImage,
-            });
-            endMarker.setLabel(`<span style="position:relative; display:inline-block; padding:3px 5px; border-radius:3px;background-color:#fc7486; color:white; z-index:1000;">`+selectedEmergency.dutyName+`</span>`);
+            path.forEach(latLng => bounds.extend(latLng));
 
-            setMarkers((prevMarkers) => [...prevMarkers, endMarker]);
+            // 도착 마커
+            if(selectedEmergency) {
+                const endPoint = new Tmapv2.LatLng(selectedEmergency.wgs84Lat, selectedEmergency.wgs84Lon);
+                const endMarker = new Tmapv2.Marker({
+                    position: endPoint,
+                    map: map,
+                    icon: markerImage,
+                });
+                endMarker.setLabel(`<span style="position:relative; display:inline-block; padding:3px 5px; border-radius:3px;background-color:#fc7486; color:white; z-index:1000;">`+selectedEmergency.dutyName+`</span>`);
+                
+                setMarkers((prevMarkers) => [...prevMarkers, endMarker]);
+                bounds.extend(endPoint);
+            }
+            
+            map.fitBounds(bounds);
+            map.setZoom(map.getZoom() - 1);
         }
     };
 
@@ -503,6 +503,11 @@ const Emergency = ()=>{
     return (
         <div id="emergency" className="emergency-container">
             <div id="map_div" className="map-background" ></div>
+            {isBoardDetailOpen &&
+                <button id="naviButton" onClick={handleFindRoute}>
+                    <img src={images['navi_icon.png']} alt=""/>
+                </button>
+            }
             <div className="sidebar">
                 <EmergencySearch onSearch={handleSearch} />
                 <div className="flex">
@@ -531,9 +536,6 @@ const Emergency = ()=>{
                         </div>
                         <div className="name-title">
                             <h2 className="emergency-name b25mc">{selectedEmergency.dutyName}</h2>
-                            <div className="find r17mc" onClick={handleFindRoute}>
-                                <p>길찾기</p>
-                            </div>
                         </div>
                         <div>현재 제공되는 종합상황판이 없습니다.</div>
                         <div className="hospital-detail">
