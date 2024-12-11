@@ -5,6 +5,8 @@ import * as regions from "../../constants/regions";
 import axios from "axios";
 import { mainContext } from "../../App";
 import { Toggle } from "./Toggle";
+import ProfileImage from "../member/mypage/ProfileImage";
+import { getMemberProfile } from "../../apis/services/goldentimeService";
 
 const URL = "http://apis.data.go.kr/B552657/ErmctInsttInfoInqireService/getParmacyListInfoInqire";
 
@@ -959,6 +961,13 @@ const Pharmacy = () => {
         }
     }, [isFiltered, pharm]);
 
+
+    // 리뷰 작성시 프로필 사진 불러오기 위한 멤버 정보
+    const [memberInfo, setMemberInfo] = useState({});
+    useEffect(()=>{
+        getMemberProfile(sessionStorage.getItem("loginMember"), setMemberInfo)
+    },[])
+
     return (
         <>
             <div id="yakgook">
@@ -1190,8 +1199,8 @@ const Pharmacy = () => {
                                                 <th><img src={images['detail_icon_tel.png']} alt="" /></th>
                                                 <td>{selectedPharm.dutyTel1}</td>
                                                 <td>
-                                                    <div className="find" onClick={handleRP}>
-                                                        <p>길찾기</p>
+                                                    <div id="naviButton"  className="find" onClick={handleRP}>
+                                                        <img src={images['navi_icon.png']} alt=""/>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1333,8 +1342,8 @@ const Pharmacy = () => {
                     </div>
 
                     {/* 오른쪽 지도 */}
-                    <div className="map_div" id="map_div">
-
+                    <div className="map_div" id="map_div">    
+                        
                     </div>
                 </div>
 
@@ -1346,7 +1355,7 @@ const Pharmacy = () => {
                                 <div className="flex">
                                     <div className="flex">
                                         <div className="img">
-                                            <img src={images['default_image.jpg']} alt="" />
+                                            <ProfileImage systemName={memberInfo.systemName} />
                                         </div>
                                         <p>{memberNickname}</p>
                                     </div>
