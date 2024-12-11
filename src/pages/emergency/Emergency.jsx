@@ -18,12 +18,14 @@ const Emergency = ()=>{
     const [markers, setMarkers] = useState([]);
     const [routeLayer, setRouteLayer] = useState(null);
     const [currentPosition, setCurrentPosition] = useState(null);
+    const [currentMarker, setCurrentMarker] = useState(null);
     const [realResults, setRealResults] = useState([]); //검색결과
     const [selectedEmergency, setSelectedEmergency] = useState(null);
     const [region, setRegion] = useState({sido:"", sigungu:""});
     const [searchKeyword, setSearchKeyword] = useState("");
     const [isBoardDetailOpen, setIsBoardDetailOpen] = useState(false); //종합상황판 열림 여부
     const [isBoardDetailVisible, setIsBoardDetailVisible] = useState(true); // 초기값: 보이도록 설정
+    const [isRouteButtonVisible, setIsRouteButtonVisible] = useState(false); // 길찾기 버튼
     const [sortedResults, setSortedResults] = useState([]);
     const [isDistanceSorted, setIsDistanceSorted] = useState(false); //거리순 정렬상태
     
@@ -58,6 +60,13 @@ const Emergency = ()=>{
         }
     }, []);
 
+    // 현재 위치 업데이트
+    useEffect(() => {
+        if (currentPosition && map) {
+            showCurrentMarker();
+        }
+    }, [currentPosition, map]);
+
     // 자동검색 - 지역 업데이트
     useEffect(() => {
         if (region.sigungu) {
@@ -65,6 +74,7 @@ const Emergency = ()=>{
             setSortedResults([]);
             setIsDistanceSorted(false);
             getSearchResults({ region, keyword: searchKeyword });
+            setIsRouteButtonVisible(false);
         }
     }, [region.sigungu, searchKeyword]);
 
@@ -74,6 +84,7 @@ const Emergency = ()=>{
             removeMarkers();
             setSortedResults([]);
             setIsDistanceSorted(false);
+            setIsRouteButtonVisible(false);
             getSearchResults({ region: { sido: "", sigungu: "" }, keyword: searchKeyword });
         }
     }, [region, searchKeyword]);
@@ -82,6 +93,7 @@ const Emergency = ()=>{
     useEffect(() => {
         removeMarkers();
         removeRouteLayer();
+        setIsRouteButtonVisible(false);
         if (realResults.length > 0) {
             updateMarkers(realResults); 
         }
@@ -198,6 +210,20 @@ const Emergency = ()=>{
         }
     };
 
+    // 현재 위치 마커
+    const showCurrentMarker = () => {
+        const nowMarker = new Tmapv2.Marker({
+            position: new Tmapv2.LatLng(
+                currentPosition.latitude,
+                currentPosition.longitude
+            ),
+            map,
+            icon: markerImage2,
+        });
+        nowMarker.setLabel(`<span style="position:relative; display:inline-block; padding:3px 5px; border-radius:3px;background-color:#1e7fff; color:white; z-index:1000;">현재위치</span>`);
+        setCurrentMarker(nowMarker);
+    }
+
     // 응급실 클릭 이벤트 핸들러
     const handleMarkerClick = (emergency) => {
         removeMarkers();
@@ -217,6 +243,7 @@ const Emergency = ()=>{
 
         setMarkers([marker]);
         setSelectedEmergency(emergency);
+        setIsRouteButtonVisible(true);
     };
 
 
@@ -250,17 +277,6 @@ const Emergency = ()=>{
 
             // 경로 표시
             drawRoute(resultData);
-
-            // 현재 위치에 마커 추가
-            const currentMarker = new Tmapv2.Marker({
-                position: new Tmapv2.LatLng(
-                    currentPosition.latitude,
-                    currentPosition.longitude
-                ),
-                map,
-                icon: markerImage2,
-            });
-            currentMarker.setLabel(`<span style="position:relative; display:inline-block; padding:3px 5px; border-radius:3px;background-color:#1e7fff; color:white; z-index:1000;">현재위치</span>`);
             
         } catch (error) {
             console.log("경로 요청 실패: ", error);
@@ -269,6 +285,7 @@ const Emergency = ()=>{
 
     // 경로 그리기
     const drawRoute = (routeData) => {
+        removeRouteLayer();
         const path = []; //경로 좌표 저장 배열
 
         // 경로 데이터를 기반으로 Polyline 생성
@@ -344,8 +361,8 @@ const Emergency = ()=>{
     const handleCloseBoardDetail = () => {
         setSelectedEmergency(null);
         setIsBoardDetailOpen(false);
-        setIsBoardDetailOpen(false);
         setIsDetailOpen(false);
+        setIsRouteButtonVisible(false);
     };
 
     // onSearch 핸들러 - 지역/키워드 업데이트
@@ -503,7 +520,7 @@ const Emergency = ()=>{
     return (
         <div id="emergency" className="emergency-container">
             <div id="map_div" className="map-background" ></div>
-            {isBoardDetailOpen &&
+            {(isBoardDetailOpen || isRouteButtonVisible) &&
                 <button id="naviButton" onClick={handleFindRoute}>
                     <img src={images['navi_icon.png']} alt=""/>
                 </button>
