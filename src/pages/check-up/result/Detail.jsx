@@ -1,48 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { images } from '../../../utils/images';
-import { getCenterBasicInfo, getCenterHolidayInfo, getCenterTransInfo, getCenterWorkInfo } from '../../../apis/api/nhisAPI';
+import { getCenterBasicInfo, getCenterHolidayInfo, getCenterTransInfo } from '../../../apis/api/nhisAPI';
+import LikeBtn from './LikeBtn';
+import { getBasicInfo, getHolidayInfo, getLikeId, getMemberLikeId, getTransInfo } from '../../../apis/services/goldentimeService';
+import { getCurrentDegree } from '../../../apis/services/geolocation';
+import { CheckUpContext } from '../CheckUp';
 
-const Detail = ({hmcNo, lat, lon, workInfo}) => {
+const Detail = ({hmcNo, lat, lon, ykindnm, workInfo, }) => {
+    const {currentPositionRef} = useContext(CheckUpContext);
+    const {currentLat, currentLon} = currentPositionRef.current;
+
     const [basicInfo, setBasicInfo] = useState(null);
     const [holidayInfo, setHolidayInfo] = useState(null);
     const [transInfo, setTransInfo] = useState(null);
-
-    async function getBasicInfo() {
-        try{
-            const response = await getCenterBasicInfo(hmcNo);
-            setBasicInfo({...(response.data.response.body.item)});
-            console.log(JSON.stringify(response.data.response));
-        }
-        catch(error) {
-            console.log(error);
-        }
-    }
-    async function getHolidayInfo() {
-        try{
-            const response = await getCenterHolidayInfo(hmcNo);
-            // console.log(JSON.stringify(response.data.response));
-            setHolidayInfo({...(response.data.response.body.item)});
-        }
-        catch(error) {
-            console.log(error);
-        }
-    }
-    async function getTransInfo() {
-        try{
-            const response = await getCenterTransInfo(hmcNo);
-            // console.log(JSON.stringify(response.data.response.body.item));
-            setTransInfo({...(response.data.response.body.item)});
-        }
-        catch(error) {
-            console.log(error);
-        }
-    }
-
-    useEffect(()=>{
-        getBasicInfo();
-        getHolidayInfo();
-        getTransInfo();
-    },[]);
+    
+    const likeIdRef = useRef(-1);
 
     function getTime(from, to) {
         if(from!==undefined&&to!==undefined) {
@@ -54,23 +26,38 @@ const Detail = ({hmcNo, lat, lon, workInfo}) => {
     }
 
     function initTmap(){
-        var map = new window.Tmapv2.Map(`map_div${hmcNo}`, { // 지도가 생성될 div
+        var map = new window.Tmapv2.Map(`map_div${hmcNo}`, {
             center : new window.Tmapv2.LatLng(lat, lon),
-            width : "468px", // 지도의 넓이
-            height : "373px", // 지도의 높이
+            // center : new window.Tmapv2.LatLng((lat+currentLat)/2, (lon+currentLon)/2),
+            width : "468px",
+            height : "373px",
             zoom : 16,
-            draggable : false,
-            draggableSys  : false,
+            // draggable : false,
+            // draggableSys  : false,
             pinchZoom  : false,
-            scrollwheel  : false,
+            // scrollwheel  : false,
             zoomControl  : false,
             measureControl  : false,
         });
-        var marker = new window.Tmapv2.Marker({
-			position: new window.Tmapv2.LatLng(lat, lon), //Marker의 중심좌표 설정.
-			map: map //Marker가 표시될 Map 설정..
+        var centerMarker = new window.Tmapv2.Marker({
+			position: new window.Tmapv2.LatLng(lat, lon),
+            icon: images['marker_checkup.png'],
+			map: map
 		});
-	} 
+
+        var currentMarker = new window.Tmapv2.Marker({
+			position: new window.Tmapv2.LatLng(currentLat, currentLon),
+            icon: images["marker_current.png"],
+			map: map
+		});
+	}
+
+    useEffect(()=>{
+        getBasicInfo(hmcNo, setBasicInfo);
+        getHolidayInfo(hmcNo, setHolidayInfo);
+        getTransInfo(hmcNo, setTransInfo);
+        getMemberLikeId(sessionStorage.getItem("loginMember"), hmcNo, likeIdRef);
+    },[]);
 
     useEffect(()=>{
         if(document.getElementById(`map_div${hmcNo}`)) {
@@ -120,7 +107,10 @@ const Detail = ({hmcNo, lat, lon, workInfo}) => {
                     </div>
                     <div>
                         <div className="info-box">
-                            <strong className="b18mc">{basicInfo?.gjca01YoyangNm}</strong>
+                            <div>
+                                <strong className="b18mc">{basicInfo?.gjca01YoyangNm}</strong>
+                                <LikeBtn hmcNo={hmcNo} hmcNm={basicInfo?.gjca01YoyangNm} ykindnm={ykindnm} hmcTel={basicInfo?.gjca01TelNo} likeId={likeIdRef.current} classification="검진기관"/>
+                            </div>
                             <ul>
                                 <li>
                                     <span className="b16dg">주소</span>
@@ -130,13 +120,13 @@ const Detail = ({hmcNo, lat, lon, workInfo}) => {
                                     <span className="b16dg">검진실 전화번호</span>
                                     <span className="r16b">{basicInfo?.gjca01TelNo}</span>
                                 </li>
-                                <li>
+                                {/* <li>
                                     <span className="b16dg">진료과목</span>
                                     <span className="r16b">내과, 결핵과</span>
-                                </li>
+                                </li> */}
                                 <li>
                                     <span className="b16dg">구분</span>
-                                    <span className="r16b">의원</span>
+                                    <span className="r16b">{ykindnm}</span>
                                 </li>
                             </ul>
                         </div>
@@ -144,7 +134,7 @@ const Detail = ({hmcNo, lat, lon, workInfo}) => {
                             <div>
                                 <div className="info-box">
                                     <strong className="b16mc">공휴일 검진 항목</strong>
-                                    <span class="b16dg">😅 현재 공휴일 검진 항목이 확인되지 않습니다.</span>
+                                    <span className="b16dg">😅 현재 공휴일 검진 항목이 확인되지 않습니다.</span>
                                     {/* <ul>
                                         <li>
                                             <span className="b16dg">공휴일</span>
@@ -189,7 +179,7 @@ const Detail = ({hmcNo, lat, lon, workInfo}) => {
                                 </div>
                             </div>
                             <div className="info-box">
-                                <strong className="b16mc">운영시간 안내 {(workInfo?.mcrtmGuidUrlExs==1)?(<a href={workInfo?.mcrtmGuidUrl} className="r14dp" target="_blank"> 진료시간 안내</a>):<></>}</strong>
+                                <strong className="b16mc">운영시간 안내 {(workInfo?.mcrtmGuidUrlExs==1)?(<a href={workInfo?.mcrtmGuidUrl} className="r14dp" target="_blank"> 자세히 보기</a>):<></>}</strong>
                                 <ul>
                                     <li>
                                         <span className="b16dg">검진시간{(workInfo?.wkdaySusmdtWkdEtc)?(<span className="r15dp">({workInfo?.wkdaySusmdtWkdEtc}) 휴진</span>):""}</span>

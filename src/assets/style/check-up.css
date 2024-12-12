@@ -153,6 +153,17 @@ table{
 #check-up .non-clickable{
     cursor: default !important;
 }
+#check-up .likeBtn{
+    cursor: pointer;
+}
+
+#check-up span.empty-list{
+    display: inline-block;
+    width: 100%;
+    height: 150px;
+    line-height: 150px;
+    text-align: center;
+}
 
 #check-up .search{
     margin-top: 57px;
@@ -209,7 +220,7 @@ table{
 }
 #check-up .search .top-box .item-box:nth-of-type(2) .input-box{
     width: 250px;
-    background-color: #f1f1f1;
+    background-color: #f0f0f0;
 }
 /* #check-up .search .top-box .item-box:nth-of-type(3) .input-box{
     width: 210px;
@@ -225,8 +236,8 @@ table{
     height: 20px;
 }
 #check-up .search .top-box .item-box:nth-of-type(2) .input-box label{
-    width: 117px;
-    height: 41px;
+    width: 119px;
+    height: 42px;
     border-radius: 7px;
     background-color: #f1f1f1;
     text-align: center;
@@ -236,7 +247,7 @@ table{
 }
 #check-up .search .top-box .item-box:nth-of-type(2) .input-box label.selected{
     background-color: #fff;
-    outline: 1px solid #eee;
+    outline: 1px solid #eeeeee;
 }
 /* #check-up .search .top-box .item-box:nth-of-type(2) .input-box input{
     width: 175px;
@@ -632,6 +643,15 @@ table{
 #check-up .result .detail-box >div:nth-of-type(2) >.info-box ul li span:nth-of-type(2){
     width: 547px;
 }
+#check-up .result .detail-box >div:nth-of-type(2) >div:nth-of-type(1) >div:nth-of-type(1){
+    display: flex;
+    flex-direction: row;
+    gap: 7px;
+    align-items: center;
+}
+#check-up .result .detail-box >div:nth-of-type(2) >div:nth-of-type(1) >div:nth-of-type(1) >img{
+    cursor: pointer;
+}
 #check-up .result .detail-box >div:nth-of-type(2) >div:nth-of-type(2){
     display: flex;
     flex-direction: row;
@@ -696,7 +716,12 @@ table{
     gap: 5px;
     align-items: baseline;
 }
-
+#check-up .result .detail-box >div:nth-of-type(2) >div:nth-of-type(2) >div.info-box:nth-of-type(2) >strong >a{
+    padding: 3px 5px;
+    background-color: #f58792;
+    border-radius: 5px;
+    color: #fff;
+}
 #check-up .result .detail-box >div:nth-of-type(2) >div:nth-of-type(2) .info-box ul{
     display: flex;
     flex-direction: column;

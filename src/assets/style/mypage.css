@@ -93,6 +93,11 @@ table{
     font-size: 16px;
     color: #154757;
 }
+#mypage .b16dg{
+    font-family: 'Pretendard-Bold';
+    font-size: 16px;
+    color: #3A7A8F;
+}
 #mypage .b163a7{
     font-family: 'Pretendard-Bold';
     font-size: 16px;
@@ -311,6 +316,9 @@ table{
 #mypage .empty-text {
     color: #FC7486 !important;
 }
+#mypage .likeBtn{
+    cursor: pointer;
+}
 
 main{
     width: 1200px;
@@ -323,7 +331,19 @@ main{
     margin-bottom: 26px;
     cursor: pointer;
 }
-
+#mypage span.empty-list{
+    display: inline-block;
+    width: 100%;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+}
+#mypage span.empty-box{
+    background-color: #E3F3F8;
+    border-radius: 8px;
+    height: 150px;
+    line-height: 150px;
+}
 #mypage >section{
     width: 100%;
     display: flex;
@@ -346,17 +366,27 @@ main{
 #mypage >section >aside ul li:nth-of-type(3){
     padding-left: 33px;
     gap: 18px;
-    
 }
 #mypage >section >aside ul li h2{
     margin-top: 1px;
 }
 
 #mypage >section >article{
-    border-left: 2px solid #eee;
     padding-left: 48px;
     padding-bottom: 30px;
     padding-top: 17px;
+    position: relative;
+}
+#mypage >section >article::after{
+    content: "";
+    width: 3px;
+    height: 100%;
+    display: block;
+    background-color: #eee;
+    position: absolute;
+    top: 0px;
+    left: -3px;
+    z-index: -1;
 }
 
 #mypage >section .dash-board{
@@ -450,7 +480,16 @@ main{
     display: flex;
     flex-direction: row;
     gap: 23px;
+    position: relative;
 }
+/* #mypage >section .dash-board >section:nth-of-type(2)::after{
+    content: "";
+    width: 2px;
+    height: 100%;
+    background-color: #eee;
+    position: absolute;
+    left: 434px;
+} */
 #mypage >section .dash-board >section:nth-of-type(2) section{
     display: flex;
     flex-direction: column;
@@ -461,7 +500,9 @@ main{
 #mypage >section .dash-board >section:nth-of-type(2) section >:nth-child(2){
     margin-bottom: 16px;
 }
-
+#mypage >section .dash-board >section:nth-of-type(2) >section:nth-of-type(1){
+    width: 411px;
+}
 #mypage >section .dash-board >section:nth-of-type(2) >section:nth-of-type(1) >ul{
     height: 433px;
     overflow-y: scroll;
@@ -510,8 +551,13 @@ main{
 
 #mypage >section .dash-board >section:nth-of-type(2) >span{
     width: 2px;
-    height: 492px;
+    height: calc(100% + 25px);
     background-color: #eee;
+    
+}
+#mypage >section .dash-board >section:nth-of-type(2) >section:nth-of-type(2){
+    width: 403px;
+    position: relative;
 }
 #mypage >section .dash-board >section:nth-of-type(2) >section:nth-of-type(2) >ul{
     display: flex;
@@ -536,7 +582,7 @@ main{
     border: 1px solid #d9d9d9;
 }
 #mypage >section .dash-board >section:nth-of-type(2) >section:nth-of-type(2) >ul >li >div:nth-of-type(2){
-    width: 225px;
+    width: 238px;
     display: flex;
     flex-direction: column;
     gap: 7px;
@@ -549,7 +595,7 @@ main{
     align-items: baseline;
 }
 #mypage >section .dash-board >section:nth-of-type(2) >section:nth-of-type(2) >ul >li >div:nth-of-type(2) >div:nth-of-type(1) >span:nth-of-type(1){
-    max-width: 167px;
+    max-width: 180px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -709,6 +755,16 @@ main{
 #mypage >section .likes >section >div:nth-of-type(1){
     display: flex;
     gap: 8px;
+    position: relative;
+}
+#mypage >section .likes >section >div:nth-of-type(1) >span{
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: #E6F6FB;
+    position: absolute;
+    bottom: 0px;
+    z-index: -1;
 }
 #mypage >section .likes >section >div:nth-of-type(1) >label{
     padding: 11px 10px;
@@ -717,14 +773,9 @@ main{
 #mypage >section .likes >section >div:nth-of-type(1) >label.checked{
     border-bottom: 2px solid #3A7A8F;
 }
-#mypage >section .likes >section >span{
-    display: block;
-    height: 2px;
-    background-color: #E6F6FB;
-}
 #mypage >section .likes >section >table{
     width: 100%;
-    margin-top: 9px;
+    margin-top: 6px;
 }
 #mypage >section .likes >section >table >tbody{
     border-bottom: 2px solid #3A7A8F;
@@ -749,38 +800,43 @@ main{
 #mypage >section .likes >section >table >thead >tr >th{
     background-color: #E6F6FB;
 }
-#mypage >section .likes >section >table >thead >tr >th:first-of-type{
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-}
 #mypage >section .likes >section >table >thead >tr >th:last-of-type{
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
 }
+#mypage >section .likes >section >table >thead >tr >th:first-of-type{
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding-left: 13px;
+}
 #mypage >section .likes >section >table >thead >tr >th:first-of-type >img{
+    width: 16px;
+    height: 16px;
     margin-top: 3px;
 }
 #mypage >section .likes >section >table >thead >tr >th:nth-of-type(1),
 #mypage >section .likes >section >table >tbody >tr >td:nth-of-type(1){
-    padding-left: 10px;
     width: 15px;
+}
+#mypage >section .likes >section >table >tbody >tr >td:nth-of-type(1){
+    padding-left: 10px;
 }
 #mypage >section .likes >section >table >thead >tr >th:nth-of-type(2),
 #mypage >section .likes >section >table >tbody >tr >td:nth-of-type(2){
-    width: 253px;
+    width: 300px;
 }
 #mypage >section .likes >section >table >thead >tr >th:nth-of-type(3),
 #mypage >section .likes >section >table >tbody >tr >td:nth-of-type(3){
-    width: 172px;
+    width: 118px;
 }
 #mypage >section .likes >section >table >thead >tr >th:nth-of-type(4),
 #mypage >section .likes >section >table >tbody >tr >td:nth-of-type(4){
-    width: 143px;
+    width: 140px;
 }
 #mypage >section .likes >section >table >thead >tr >th:nth-of-type(5),
 #mypage >section .likes >section >table >tbody >tr >td:nth-of-type(5){
-    width: 94px;
-    padding-right: 10px;
+    width: 80px;
+    padding-right: 0px;
 }
 #mypage >section .likes >section >table >tbody >tr >td:nth-of-type(3){
     display: flex;
@@ -937,3 +993,62 @@ main{
 #mypage .review-modal .box .btn{justify-content: center}
 #mypage .review-modal .box .btn a{width:90px; margin:0 5px; border:1px solid #ddd; border-radius: 5px; line-height: 37px; text-align: center; color:#888; cursor: pointer;}
 #mypage .review-modal .box .btn a.review-btn{background: #FC7486; border-color: #FC7486; color:#fff;}
+
+/* 펼쳐지는 상세정보 */
+#mypage .detail{position:fixed; top:85px; right:20px; width:390px; height: calc(100vh - 100px); box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1); border-radius: 10px; background: #fff; overflow: hidden;}
+#mypage .detail-center{top:85px; height: calc(100vh - 490px);}
+/* #mypage .dash-board .detail{top:0px; right:-10px;}
+#mypage .dash-board .detail-center{top:200px;} */
+#mypage .detail .scroll{position:absolute; height:100%; overflow-y: scroll; padding:0 15px 10px 20px; }
+#mypage .detail .scroll-center{ overflow-y: unset; }
+#mypage .detail .scroll>p{position:absolute; width:350px; margin-bottom:15px; padding-top:10px; border-bottom:1px solid #ddd; background: #fff; font-size: 17px; line-height: 45px; z-index: 100;}
+#mypage .detail .scroll>p span{float: right; cursor: pointer;}
+#mypage .detail .data{width:350px;}
+#mypage .detail .data>p{margin-top:65px; margin-bottom:5px; font-family: 'Pretendard-Bold'; font-size: 22px; color:#154757;}
+#mypage .detail .data>p a{float:right;}
+#mypage .detail .data>p a img{vertical-align: -2px;}
+#mypage .detail .data span{font-size: 17px; color:#888;}
+#mypage .detail .data .open{margin:5px 0 10px; font-size: 17px; }
+#mypage .detail .data .open p{display: inline-block; margin-right:5px; font-family: 'Pretendard-Regular';  font-size: 17px; }
+#mypage .detail .data .open p.green{color:#43AC52;}
+#mypage .detail .data .open p.red{color:#FF3C3C;}
+#mypage .detail .data table tr th{padding:3px 8px 3px 0px;}
+#mypage .detail .data table tr td{line-height: 18px; font-size: 15px;}
+#mypage .detail .data table tr.emergency{color:#FF3C3C}
+/* 상세정보-탭메뉴 */
+#mypage .detail .detail-tab{margin-top:15px; width:350px; cursor: pointer;}
+#mypage .detail .detail-tab p{width:50%; height: 27px; text-align: center; font-size: 17px; height: 27px; border-bottom: 1px solid #ddd;}
+#mypage .detail .detail-tab p.on{border-bottom:3px solid #FC7486;}
+#mypage .detail .tab-container{position:relative; width:350px;}
+#mypage .detail .tab-container .tab-con{position:absolute; top:0; left:0; width:100%; padding-bottom:20px; display: none;}
+#mypage .detail .tab-container .tab-con.show{display: block;}
+#mypage .detail .tab-container .tab-con.hide{display: none;}
+/* 상세정보-시간&진료과목 */
+#mypage .detail h4{margin:20px 0 7px; font-family: 'Pretendard-Bold'; font-size: 18px; }
+#mypage .detail .time table{width:100%; border-collapse: collapse;}
+#mypage .detail .time table tr{line-height: 40px;}
+#mypage .detail .time table tr th{width:100px; border:1px solid #ddd; background: #f4f4f4; font-weight: 400;}
+#mypage .detail .time table tr td{padding-left:10px; border:1px solid #ddd;}
+#mypage .detail .time table tr.holiday{color:#FF3C3C}
+#mypage .detail .subject ul li{list-style: disc; margin-left:25px; line-height: 25px;}
+
+
+/* 상세정보-평점&리뷰 */
+#mypage .detail .score table{width:100%;}
+#mypage .detail .score table th{padding-right:15px; font-weight: 400;}
+#mypage .detail .score table td{padding:7px 0;}
+#mypage .detail .score table td>div{width:220px; height:8px; border-radius: 4px; background: #ddd; }
+#mypage .detail .score table td>div p{width:0%; height:8px; border-radius: 4px; background: #FC7486; }
+#mypage .detail .score table td:nth-child(3){text-align: center;}
+#mypage .detail .score table td>p{font-family: 'Pretendard-Bold'; font-size: 50px; text-align: center;}
+#mypage .detail .score table td>span{display: block;}
+#mypage .detail .score table+a{display: block; width:110px; margin:20px auto; border:1px solid #FC7486; border-radius: 19px; line-height:38px; text-align: center; font-size: 15px; color:#FC7486; }
+#mypage .detail .review ul{margin-top:15px;}
+#mypage .detail .review ul li{margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #ddd}
+#mypage .detail .review ul li:last-child{margin-bottom:0; padding-bottom:0; border:none;}
+#mypage .detail .review ul li .flex{justify-content: start; margin-bottom:8px;}
+#mypage .detail .review ul li .flex .img{width:40px; height:40px; margin-right:10px; border: 1px solid #ddd; border-radius: 50%; overflow: hidden;}
+#mypage .detail .review ul li .flex .img img{width:100%; height:100%;}
+#mypage .detail .review ul li .flex div{font-size: 17px;}
+#mypage .detail .review ul li .flex div p{margin-top:3px; font-size: 13px; color:#888;}
+#mypage .detail .review ul li>p{margin-top:5px; font-size: 15px;}

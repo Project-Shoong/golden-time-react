@@ -168,13 +168,14 @@ const Hospital = ()=>{
         setFavoriteIndex(index);
         try {
             if (!isFavorited) {
+                const dutyDiv = renameClassification(hospital.dutyDivNam,hospital.dutyName);
                 // 즐겨찾기 추가
                 const response = await axios.post('/api/hospital/favorite', {
-                    classification : hospital.dutyDivNam,
+                    classification : "병원",
                     memberId : loginMember,
                     dutyId : hospital.hpid,
                     dutyName : hospital.dutyName,
-                    dutyDiv : hospital.dutyDivNam,
+                    dutyDiv : dutyDiv,
                     dutyTel : hospital.dutyTel1,
                 });
             } else {
@@ -327,6 +328,8 @@ const Hospital = ()=>{
                     <HospitalMap 
                         setRegion={setRegion} 
                         hospitalData={hospitalData}
+                        setIsDetailOpen={setIsDetailOpen}
+                        isDetailOpen={isDetailOpen}
                         handleOpenDetail={handleOpenDetail}
                         selectedHospital={selectedHospital}
                     />

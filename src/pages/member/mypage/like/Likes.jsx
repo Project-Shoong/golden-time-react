@@ -3,7 +3,45 @@ import { getMemberLikes } from '../../../../apis/services/goldentimeService';
 import { images } from '../../../../utils/images';
 import { Classification } from '../../../../constants/constants';
 import Pagination from '../../../check-up/result/Pagination';
-import Like from './Like';
+import LikeBtn from '../../../check-up/result/LikeBtn';
+import { deleteLike } from '../../../../apis/api/goldentimeAPI';
+import HospitalDetail from '../HospitalDetail';
+import CenterDetail from '../CenterDetail';
+
+export const setLikeDetail = (cls)=>{
+    switch(cls) {
+        case Classification.HOSPITAL:
+            return "lbgc-h";
+        case Classification.PHARMACY:
+            return "lbgc-p";
+        case Classification.CENTER:
+            return "lbgc-c";
+    }
+}
+
+export const setLikeIcon = (cls, size)=>{
+    switch(cls) {
+        case Classification.HOSPITAL:
+            if(size===28) return `icon_hospital28.png`;
+            if(size===21) return `icon_hospital21.png`;
+        case Classification.PHARMACY:
+            if(size===28) return `icon_pharmacy28.png`;
+            if(size===21) return `icon_pharmacy21.png`;
+        case Classification.CENTER:
+            if(size===28) return `icon_center28.png`;
+            if(size===21) return `icon_center21.png`;
+    }
+}
+
+export const detailHandler = (dutyRef, setIsDetailOpen)=>{
+    switch(dutyRef.current.classification) {
+        case "병원":
+        case "약국":
+            return (<HospitalDetail hpid={dutyRef.current.duty.dutyId} classification={dutyRef.current.classification} setIsDetailOpen={setIsDetailOpen}/>);
+        case "검진기관":
+            return (<CenterDetail hmcNo={dutyRef.current.duty.dutyId}  setIsDetailOpen={setIsDetailOpen}/>)
+    }
+}
 
 const Likes = () => {
     const NUMOFROWS = 8;
@@ -11,6 +49,9 @@ const Likes = () => {
 
     const [likeList, setLikeList] = useState({});
     const [classification, setClassification] = useState(TOTAL);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+    const dutyRef = useRef();
 
     const classificationsRef = useRef([]);
     const addClassificationsRef = (e)=>{
@@ -19,9 +60,12 @@ const Likes = () => {
         }
     }
 
+    const pageNoRef = useRef(1);
+
     useEffect(()=>{
         getMemberLikes({memberId: sessionStorage.getItem("loginMember"),
             classification: classification, pageNo: 1, numOfRows:NUMOFROWS}, setLikeList);
+        pageNoRef.current = 1;
     },[classification])
 
     const classificationHandler = (e)=>{
@@ -36,6 +80,20 @@ const Likes = () => {
         })
 
         setClassification(e.target.value);
+    }
+
+    async function removeLike(likeId) {
+        try{
+            const memberId = sessionStorage.getItem("loginMember")
+            const response = await deleteLike(memberId, likeId);
+            if(response.data.data==="success") {
+                getMemberLikes({memberId: memberId,
+                    classification: classification, pageNo: pageNoRef.current, numOfRows:NUMOFROWS}, setLikeList)
+            }
+        }
+        catch(error) {
+            console.log(error);
+        }
     }
 
     return (
@@ -58,40 +116,68 @@ const Likes = () => {
                         {PHARMACY}
                         <input className="hidden" type="radio" id="likes_pharmacy" name="likes_cls" value={PHARMACY} onChange={(e)=>{classificationHandler(e)}}/>
                     </label>
-                    {/* <label className="b156aa" htmlFor="likes_check_up" ref={addClassificationsRef}>
+                    <label className="b156aa" htmlFor="likes_check_up" ref={addClassificationsRef}>
                         {CENTER}
                         <input className="hidden" type="radio" id="likes_check_up" name="likes_cls" value={CENTER} onChange={(e)=>{classificationHandler(e)}}/>
-                    </label> */}
+                    </label>
+                    <span></span>
                 </div>
-                <span></span>
                 <table>
                     <thead>
                         <tr>
                             <th>
-                                <img src={images['like13.png']} alt=""/>
+                                <img src={images['nav_like_clicked20.png']} alt=""/>
                             </th>
                             <th className="b143a7">기관명</th>
                             <th className="b143a7">구분</th>
                             <th className="b143a7">전화번호</th>
-                            <th className="b143a7">위치 확인</th>
+                            <th className="b143a7">상세 확인</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr></tr>
                         {
+                            (likeList.items?.length>0)?
                             likeList?.items?.map((like)=>{
                                 return (
-                                    <Like like={like} key={like.likeId}/>
+                                    <tr key={like.likeId}>
+                                        <td>
+                                            <img className="likeBtn" src={images['star20_on.png']} onClick={()=>{
+                                                setIsDetailOpen(false);
+                                                removeLike(like.likeId);
+                                                }} />
+                                        </td>
+                                        <td className="r163a7">{like.duty.dutyName}</td>
+                                        <td className="r163a7">
+                                            <img src={images[`${setLikeIcon(like.classification, 21)}`]} alt=""/>
+                                            {like.duty.dutyDiv}
+                                        </td>
+                                        <td className="r163a7">{like.duty.dutyTel}</td>
+                                        <td>
+                                            <button className={`b14w ${setLikeDetail(like.classification)}`} onClick={()=>{
+                                                dutyRef.current = like;
+                                                setIsDetailOpen(true);
+                                                }}>상세 보기</button>
+                                        </td>
+                                    </tr>
                                 )
                             })
+                            :
+                            <tr>
+                                <td colSpan='5'>
+                                    <span className="b16dg empty-list">{`즐겨찾기로 등록하신 ${(classification===""?"기관":classification)}이 존재하지 않습니다.`}</span>
+                                </td>
+                            </tr>
                         }
                         <tr></tr>
                     </tbody>
                 </table>
             </section>
-            {(likeList && (<Pagination datas={likeList} paging={(pageNo)=>{
-                getMemberLikes({memberId: sessionStorage.getItem("loginMember"), classification: classification, pageNo: pageNo, numOfRows:8
-                }, setLikeList)}}/>))}
+            {(likeList.items?.length>0 && (<Pagination datas={likeList} paging={(pageNo)=>{
+                getMemberLikes({memberId: sessionStorage.getItem("loginMember"), classification: classification, pageNo: pageNo, numOfRows:8},setLikeList);
+                pageNoRef.current = pageNo;
+                }}/>))}
+            {isDetailOpen && detailHandler(dutyRef, setIsDetailOpen)}
         </article>
     )
 }
